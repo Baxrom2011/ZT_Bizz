@@ -6,941 +6,384 @@
     <title>ZT Bizz Up</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* ============================================================
-           DESIGN TOKENS
-           ============================================================ */
+        /* ===== DESIGN TOKENS ===== */
         :root {
             --zt-green: #00e545;
             --zt-green-dark: #00c03a;
-            --zt-green-glow: rgba(0, 229, 69, 0.15);
-
+            --zt-green-glow: rgba(0,229,69,0.15);
             --bg-primary: #f5f7fa;
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
             --bg-input: #f0f2f5;
             --bg-hover: #f8f9fc;
-            --bg-surface: #ffffff;
-
             --text-primary: #0b0e14;
             --text-secondary: #475569;
             --text-muted: #94a3b8;
-
             --border-color: #e2e8f0;
-            --border-light: #f1f5f9;
-
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
             --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
             --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
             --shadow-xl: 0 16px 48px rgba(0,0,0,0.12);
-
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 14px;
             --radius-xl: 18px;
-
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
+            --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
             --success: #00c853;
-            --success-bg: rgba(0, 200, 83, 0.10);
+            --success-bg: rgba(0,200,83,0.10);
             --danger: #ef4444;
-            --danger-bg: rgba(239, 68, 68, 0.10);
+            --danger-bg: rgba(239,68,68,0.10);
             --warning: #f59e0b;
-            --warning-bg: rgba(245, 158, 11, 0.10);
+            --warning-bg: rgba(245,158,11,0.10);
             --info: #3b82f6;
-            --info-bg: rgba(59, 130, 246, 0.10);
+            --info-bg: rgba(59,130,246,0.10);
         }
-
         [data-theme="dark"] {
             --bg-primary: #08080b;
             --bg-secondary: #0f0f14;
             --bg-card: #15151d;
             --bg-input: #1a1a24;
             --bg-hover: #1e1e2a;
-            --bg-surface: #111118;
-
             --text-primary: #ececf0;
             --text-secondary: #9aa3b8;
             --text-muted: #5a6478;
-
             --border-color: #252530;
-            --border-light: #1a1a24;
-
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
             --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
             --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
             --shadow-xl: 0 16px 48px rgba(0,0,0,0.6);
-
-            --success-bg: rgba(0, 200, 83, 0.15);
-            --danger-bg: rgba(239, 68, 68, 0.15);
-            --warning-bg: rgba(245, 158, 11, 0.15);
-            --info-bg: rgba(59, 130, 246, 0.15);
+            --success-bg: rgba(0,200,83,0.15);
+            --danger-bg: rgba(239,68,68,0.15);
+            --warning-bg: rgba(245,158,11,0.15);
+            --info-bg: rgba(59,130,246,0.15);
         }
-
-        /* ============================================================
-           RESET & BASE
-           ============================================================ */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
-            -webkit-font-smoothing: antialiased;
+            font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+            background:var(--bg-primary);
+            color:var(--text-primary);
+            min-height:100vh;
+            transition:background 0.3s,color 0.3s;
+            -webkit-font-smoothing:antialiased;
         }
-
-        /* ============================================================
-           SCROLLBAR
-           ============================================================ */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-        /* ============================================================
-           ANIMATIONS
-           ============================================================ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .anim-fade-up { animation: fadeUp 0.35s ease-out both; }
-        .anim-fade-in { animation: fadeIn 0.25s ease-out both; }
-
-        /* ============================================================
-           LAYOUT
-           ============================================================ */
-        .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
-
-        /* ============================================================
-           TOPBAR
-           ============================================================ */
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:99px; }
+        ::-webkit-scrollbar-thumb:hover { background:var(--text-muted); }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+        .anim-fade-up { animation:fadeUp 0.35s ease-out both; }
+        .app-shell { min-height:100vh; display:flex; flex-direction:column; }
         .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            height: 64px;
-            backdrop-filter: blur(12px);
-            background: rgba(var(--bg-secondary-rgb, 255,255,255), 0.85);
-            transition: var(--transition);
+            position:sticky;top:0;z-index:100;
+            background:var(--bg-secondary);
+            border-bottom:1px solid var(--border-color);
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 28px;height:64px;
+            backdrop-filter:blur(12px);
+            background:rgba(255,255,255,0.85);
+            transition:var(--transition);
         }
-        [data-theme="dark"] .topbar {
-            background: rgba(15, 15, 20, 0.90);
-        }
-
-        .topbar-left { display: flex; align-items: center; gap: 14px; }
-
-        .topbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .topbar-logo img {
-            height: 34px;
-            width: auto;
-        }
-        .topbar-brand {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            color: var(--text-primary);
-        }
-        .topbar-brand .highlight { color: var(--zt-green); }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        [data-theme="dark"] .topbar { background:rgba(15,15,20,0.90); }
+        .topbar-left { display:flex; align-items:center; gap:14px; }
+        .topbar-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+        .topbar-logo img { height:34px; width:auto; }
+        .topbar-brand { font-size:16px; font-weight:800; letter-spacing:-0.3px; color:var(--text-primary); }
+        .topbar-brand .highlight { color:var(--zt-green); }
+        .topbar-right { display:flex; align-items:center; gap:10px; }
         .conn-pill {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-muted);
-            padding: 5px 14px;
-            background: var(--bg-input);
-            border-radius: 99px;
-            border: 1px solid var(--border-color);
+            display:flex; align-items:center; gap:7px;
+            font-size:12px; font-weight:500; color:var(--text-muted);
+            padding:5px 14px; background:var(--bg-input);
+            border-radius:99px; border:1px solid var(--border-color);
         }
-        .conn-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            transition: background 0.3s;
-        }
-        .conn-dot.online { background: var(--success); box-shadow: 0 0 0 3px rgba(0,200,83,0.2); }
-        .conn-dot.offline { background: var(--danger); }
-
+        .conn-dot { width:7px; height:7px; border-radius:50%; background:var(--text-muted); transition:background 0.3s; }
+        .conn-dot.online { background:var(--success); box-shadow:0 0 0 3px rgba(0,200,83,0.2); }
+        .conn-dot.offline { background:var(--danger); }
         .icon-btn {
-            width: 36px;
-            height: 36px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            color: var(--text-secondary);
+            width:36px; height:36px; border:1px solid var(--border-color); border-radius:var(--radius-sm);
+            background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
+            transition:var(--transition); color:var(--text-secondary);
         }
-        .icon-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border-color: var(--text-muted);
-        }
-
+        .icon-btn:hover { background:var(--bg-hover); color:var(--text-primary); border-color:var(--text-muted); }
         .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 12px 4px 4px;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 99px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
+            display:flex; align-items:center; gap:8px;
+            padding:4px 12px 4px 4px; background:var(--bg-input);
+            border:1px solid var(--border-color); border-radius:99px;
+            font-size:13px; font-weight:600; color:var(--text-primary);
         }
         .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--zt-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 800;
-            color: #000;
-            letter-spacing: 0;
+            width:28px; height:28px; border-radius:50%; background:var(--zt-green);
+            display:flex; align-items:center; justify-content:center;
+            font-size:11px; font-weight:800; color:#000;
         }
-
-        .hidden { display: none !important; }
-
-        /* ============================================================
-           LOGIN
-           ============================================================ */
+        .hidden { display:none !important; }
         #loginSection {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px;
+            flex:1; display:flex; align-items:center; justify-content:center; padding:32px;
         }
-
         .login-card {
-            width: 100%;
-            max-width: 400px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            padding: 44px 38px;
-            box-shadow: var(--shadow-lg);
-            animation: fadeUp 0.4s ease-out;
+            width:100%; max-width:400px; background:var(--bg-card);
+            border:1px solid var(--border-color); border-radius:var(--radius-xl);
+            padding:44px 38px; box-shadow:var(--shadow-lg); animation:fadeUp 0.4s ease-out;
         }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .login-header .logo-wrap {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 16px;
-        }
-        .login-header .logo-wrap img {
-            height: 52px;
-            width: auto;
-        }
-        .login-title {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.4px;
-        }
-        .login-sub {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .form-group { margin-bottom: 16px; }
+        .login-header { text-align:center; margin-bottom:32px; }
+        .login-header .logo-wrap { display:flex; justify-content:center; margin-bottom:16px; }
+        .login-header .logo-wrap img { height:52px; width:auto; }
+        .login-title { font-size:22px; font-weight:800; letter-spacing:-0.4px; }
+        .login-sub { font-size:13px; color:var(--text-muted); margin-top:2px; }
+        .form-group { margin-bottom:16px; }
         .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
+            display:block; font-size:12px; font-weight:600; color:var(--text-secondary);
+            margin-bottom:5px; text-transform:uppercase; letter-spacing:0.4px;
         }
         .form-input {
-            width: 100%;
-            padding: 11px 15px;
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transition: var(--transition);
-            font-family: inherit;
+            width:100%; padding:11px 15px; border:1.5px solid var(--border-color);
+            border-radius:var(--radius-md); font-size:14px; background:var(--bg-input);
+            color:var(--text-primary); transition:var(--transition); font-family:inherit;
         }
         .form-input:focus {
-            outline: none;
-            border-color: var(--zt-green);
-            box-shadow: 0 0 0 4px var(--zt-green-glow);
-            background: var(--bg-card);
+            outline:none; border-color:var(--zt-green); box-shadow:0 0 0 4px var(--zt-green-glow);
+            background:var(--bg-card);
         }
-        .form-input::placeholder { color: var(--text-muted); }
-        select.form-input { cursor: pointer; }
-
+        .form-input::placeholder { color:var(--text-muted); }
+        select.form-input { cursor:pointer; }
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: 1.5px solid transparent;
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-            white-space: nowrap;
+            display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            padding:10px 20px; border:1.5px solid transparent; border-radius:var(--radius-md);
+            font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition);
+            font-family:inherit; white-space:nowrap;
         }
-        .btn:active { transform: scale(0.97); }
-        .btn-full { width: 100%; }
-
-        .btn-primary {
-            background: var(--zt-green);
-            color: #000;
-            border-color: var(--zt-green);
-        }
-        .btn-primary:hover { background: var(--zt-green-dark); border-color: var(--zt-green-dark); }
-
-        .btn-secondary {
-            background: var(--bg-input);
-            color: var(--text-primary);
-            border-color: var(--border-color);
-        }
-        .btn-secondary:hover { background: var(--bg-hover); }
-
-        .btn-success {
-            background: var(--success);
-            color: #fff;
-            border-color: var(--success);
-        }
-        .btn-success:hover { filter: brightness(0.9); }
-
-        .btn-danger {
-            background: transparent;
-            color: var(--danger);
-            border-color: var(--border-color);
-        }
-        .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border-color: var(--border-color);
-        }
-        .btn-ghost:hover { background: var(--bg-input); color: var(--text-primary); }
-
-        .btn-sm { padding: 6px 14px; font-size: 12px; }
-        .btn-icon {
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            border-radius: var(--radius-sm);
-        }
-
-        /* ============================================================
-           PANELS
-           ============================================================ */
-        .panel { display: none; }
-        .panel.active { display: block; animation: fadeUp 0.3s ease-out; }
-
-        /* ============================================================
-           MAIN CONTENT
-           ============================================================ */
-        .main-content {
-            padding: 28px 28px 40px;
-            max-width: 1280px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
+        .btn:active { transform:scale(0.97); }
+        .btn-full { width:100%; }
+        .btn-primary { background:var(--zt-green); color:#000; border-color:var(--zt-green); }
+        .btn-primary:hover { background:var(--zt-green-dark); border-color:var(--zt-green-dark); }
+        .btn-secondary { background:var(--bg-input); color:var(--text-primary); border-color:var(--border-color); }
+        .btn-secondary:hover { background:var(--bg-hover); }
+        .btn-success { background:var(--success); color:#fff; border-color:var(--success); }
+        .btn-success:hover { filter:brightness(0.9); }
+        .btn-danger { background:transparent; color:var(--danger); border-color:var(--border-color); }
+        .btn-danger:hover { background:var(--danger-bg); border-color:var(--danger); }
+        .btn-ghost { background:transparent; color:var(--text-secondary); border-color:var(--border-color); }
+        .btn-ghost:hover { background:var(--bg-input); color:var(--text-primary); }
+        .btn-sm { padding:6px 14px; font-size:12px; }
+        .btn-icon { width:34px; height:34px; padding:0; border-radius:var(--radius-sm); }
+        .panel { display:none; }
+        .panel.active { display:block; animation:fadeUp 0.3s ease-out; }
+        .main-content { padding:28px 28px 40px; max-width:1280px; margin:0 auto; width:100%; }
         .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 12px;
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:24px; flex-wrap:wrap; gap:12px;
         }
-        .page-title {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.4px;
-        }
-        .page-sub {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-        .page-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        /* ============================================================
-           STATS
-           ============================================================ */
+        .page-title { font-size:22px; font-weight:800; letter-spacing:-0.4px; }
+        .page-sub { font-size:13px; color:var(--text-muted); margin-top:2px; }
+        .page-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 14px;
-            margin-bottom: 24px;
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+            gap:14px; margin-bottom:24px;
         }
-
         .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 20px 22px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
+            background:var(--bg-card); border:1px solid var(--border-color);
+            border-radius:var(--radius-lg); padding:20px 22px;
+            transition:var(--transition); position:relative; overflow:hidden;
         }
-        .stat-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
+        .stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
         .stat-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size:11px; font-weight:600; color:var(--text-muted);
+            text-transform:uppercase; letter-spacing:0.5px;
+            display:flex; align-items:center; gap:8px;
         }
-        .stat-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .stat-value {
-            font-size: 26px;
-            font-weight: 800;
-            margin-top: 10px;
-            letter-spacing: -0.4px;
-        }
-        .stat-value.positive { color: var(--zt-green); }
-        .stat-value.negative { color: var(--danger); }
-        .stat-value.neutral { color: var(--text-primary); }
-
-        .stat-bg-icon {
-            position: absolute;
-            right: -8px;
-            bottom: -8px;
-            opacity: 0.04;
-            font-size: 56px;
-        }
-
-        /* ============================================================
-           CARD
-           ============================================================ */
+        .stat-icon { width:28px; height:28px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .stat-value { font-size:26px; font-weight:800; margin-top:10px; letter-spacing:-0.4px; }
+        .stat-value.positive { color:var(--zt-green); }
+        .stat-value.negative { color:var(--danger); }
+        .stat-value.neutral { color:var(--text-primary); }
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            margin-bottom: 18px;
-            overflow: hidden;
-            transition: var(--transition);
+            background:var(--bg-card); border:1px solid var(--border-color);
+            border-radius:var(--radius-lg); margin-bottom:18px; overflow:hidden; transition:var(--transition);
         }
-        .card:hover { box-shadow: var(--shadow-sm); }
-
+        .card:hover { box-shadow:var(--shadow-sm); }
         .card-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 22px;
-            border-bottom: 1px solid var(--border-color);
-            flex-wrap: wrap;
-            gap: 10px;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:16px 22px; border-bottom:1px solid var(--border-color);
+            flex-wrap:wrap; gap:10px;
         }
-        .card-title {
-            font-size: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-primary);
-        }
-        .card-body { padding: 20px 22px; }
-        .card-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-
-        /* ============================================================
-           TABLE
-           ============================================================ */
-        .table-wrap { overflow-x: auto; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
+        .card-title { font-size:15px; font-weight:700; display:flex; align-items:center; gap:10px; color:var(--text-primary); }
+        .card-body { padding:20px 22px; }
+        .card-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
         thead th {
-            padding: 10px 14px;
-            background: var(--bg-input);
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+            padding:10px 14px; background:var(--bg-input); font-weight:600; color:var(--text-muted);
+            font-size:11px; text-transform:uppercase; letter-spacing:0.4px;
+            text-align:left; border-bottom:1px solid var(--border-color); white-space:nowrap;
         }
-        tbody td {
-            padding: 11px 14px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-primary);
-            vertical-align: middle;
-        }
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover td { background: var(--bg-hover); }
-
+        tbody td { padding:11px 14px; border-bottom:1px solid var(--border-color); color:var(--text-primary); vertical-align:middle; }
+        tbody tr:last-child td { border-bottom:none; }
+        tbody tr:hover td { background:var(--bg-hover); }
         .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 12px;
-            border-radius: 99px;
-            font-size: 11px;
-            font-weight: 600;
+            display:inline-flex; align-items:center; gap:5px; padding:3px 12px;
+            border-radius:99px; font-size:11px; font-weight:600;
         }
-        .badge-approved { background: var(--success-bg); color: var(--success); }
-        .badge-pending { background: var(--warning-bg); color: var(--warning); }
-        .badge-rejected { background: var(--danger-bg); color: var(--danger); }
-        .badge-income { background: rgba(0,229,69,0.12); color: var(--zt-green-dark); }
-        .badge-expense { background: var(--danger-bg); color: var(--danger); }
-
-        /* ============================================================
-           CHAT
-           ============================================================ */
-        .chat-wrap { display: flex; flex-direction: column; height: 280px; }
+        .badge-approved { background:var(--success-bg); color:var(--success); }
+        .badge-pending { background:var(--warning-bg); color:var(--warning); }
+        .badge-rejected { background:var(--danger-bg); color:var(--danger); }
+        .chat-wrap { display:flex; flex-direction:column; height:280px; }
         .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: var(--bg-input);
+            flex:1; overflow-y:auto; padding:16px 20px;
+            display:flex; flex-direction:column; gap:8px; background:var(--bg-input);
         }
-        .chat-msg {
-            max-width: 72%;
-            animation: slideDown 0.2s ease-out;
-        }
-        .chat-msg.mine { align-self: flex-end; }
-        .chat-msg.theirs { align-self: flex-start; }
-
+        .chat-msg { max-width:72%; animation:slideDown 0.2s ease-out; }
+        .chat-msg.mine { align-self:flex-end; }
+        .chat-msg.theirs { align-self:flex-start; }
         .chat-bubble {
-            padding: 10px 16px;
-            border-radius: 14px;
-            font-size: 13px;
-            line-height: 1.5;
-            word-break: break-word;
+            padding:10px 16px; border-radius:14px; font-size:13px; line-height:1.5; word-break:break-word;
         }
         .chat-msg.mine .chat-bubble {
-            background: var(--zt-green);
-            color: #000;
-            border-radius: 14px 14px 4px 14px;
+            background:var(--zt-green); color:#000; border-radius:14px 14px 4px 14px;
         }
         .chat-msg.theirs .chat-bubble {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            border-radius: 14px 14px 14px 4px;
+            background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary);
+            border-radius:14px 14px 14px 4px;
         }
-        .chat-meta {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 3px;
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-        .chat-sender { font-weight: 600; color: var(--text-secondary); }
-
+        .chat-meta { display:flex; align-items:center; gap:6px; margin-bottom:3px; font-size:11px; color:var(--text-muted); }
+        .chat-sender { font-weight:600; color:var(--text-secondary); }
         .chat-input-row {
-            display: flex;
-            gap: 8px;
-            padding: 12px 16px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-card);
+            display:flex; gap:8px; padding:12px 16px;
+            border-top:1px solid var(--border-color); background:var(--bg-card);
         }
-        .chat-input-row .form-input {
-            border-radius: 99px;
-            padding: 9px 16px;
-            font-size: 13px;
-            flex: 1;
-        }
+        .chat-input-row .form-input { border-radius:99px; padding:9px 16px; font-size:13px; flex:1; }
         .chat-send-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: var(--zt-green);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: var(--transition);
+            width:38px; height:38px; border-radius:50%; background:var(--zt-green);
+            border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; transition:var(--transition);
         }
-        .chat-send-btn:hover { background: var(--zt-green-dark); }
-        .chat-send-btn:active { transform: scale(0.93); }
-
-        /* ============================================================
-           MODAL
-           ============================================================ */
+        .chat-send-btn:hover { background:var(--zt-green-dark); }
+        .chat-send-btn:active { transform:scale(0.93); }
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(6px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            padding: 20px;
+            position:fixed; inset:0; background:rgba(0,0,0,0.55);
+            backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center;
+            z-index:200; padding:20px;
         }
-        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        .modal-overlay.active { display:flex; animation:fadeIn 0.2s ease-out; }
         .modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            padding: 32px 34px;
-            max-width: 460px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-xl);
-            animation: fadeUp 0.25s ease-out;
+            background:var(--bg-card); border:1px solid var(--border-color);
+            border-radius:var(--radius-xl); padding:32px 34px;
+            max-width:460px; width:100%; max-height:90vh; overflow-y:auto;
+            box-shadow:var(--shadow-xl); animation:fadeUp 0.25s ease-out;
         }
-        .modal-header { margin-bottom: 20px; }
-        .modal-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-        .modal-desc { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .modal-header { margin-bottom:20px; }
+        .modal-title { font-size:18px; font-weight:800; letter-spacing:-0.3px; }
+        .modal-desc { font-size:13px; color:var(--text-muted); margin-top:4px; }
         .modal-footer {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
+            display:flex; gap:8px; justify-content:flex-end;
+            margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);
         }
-
-        /* ============================================================
-           YEAR / MONTH SELECTOR
-           ============================================================ */
-        .year-selector {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
+        .year-selector { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
         .year-btn {
-            padding: 5px 16px;
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
+            padding:5px 16px; border:1.5px solid var(--border-color); border-radius:var(--radius-sm);
+            background:var(--bg-input); color:var(--text-secondary);
+            font-weight:600; font-size:12px; cursor:pointer; transition:var(--transition); font-family:inherit;
         }
-        .year-btn:hover,
-        .year-btn.active {
-            border-color: var(--zt-green);
-            background: var(--zt-green);
-            color: #000;
-        }
-
-        .month-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 14px;
-        }
+        .year-btn:hover,.year-btn.active { border-color:var(--zt-green); background:var(--zt-green); color:#000; }
+        .month-grid { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
         .month-pill {
-            padding: 4px 14px;
-            border-radius: 99px;
-            border: 1.5px solid var(--border-color);
-            background: var(--bg-input);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
+            padding:4px 14px; border-radius:99px; border:1.5px solid var(--border-color);
+            background:var(--bg-input); color:var(--text-secondary);
+            font-size:12px; font-weight:600; cursor:pointer; transition:var(--transition); font-family:inherit;
         }
-        .month-pill:hover,
-        .month-pill.active {
-            border-color: var(--zt-green);
-            background: var(--zt-green);
-            color: #000;
-        }
-
-        /* ============================================================
-           FILTERS
-           ============================================================ */
+        .month-pill:hover,.month-pill.active { border-color:var(--zt-green); background:var(--zt-green); color:#000; }
         .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-            margin-bottom: 12px;
+            display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:12px;
         }
-        .filter-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-right: 2px;
+        .filter-group label { font-size:12px; font-weight:600; color:var(--text-secondary); margin-right:2px; }
+        .filter-group input,.filter-group select {
+            padding:7px 12px; border:1.5px solid var(--border-color); border-radius:var(--radius-sm);
+            background:var(--bg-input); color:var(--text-primary); font-size:13px; font-family:inherit; transition:var(--transition);
         }
-        .filter-group input,
-        .filter-group select {
-            padding: 7px 12px;
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-size: 13px;
-            font-family: inherit;
-            transition: var(--transition);
-        }
-        .filter-group input:focus,
-        .filter-group select:focus {
-            outline: none;
-            border-color: var(--zt-green);
-        }
-
-        /* ============================================================
-           DAY STATS
-           ============================================================ */
+        .filter-group input:focus,.filter-group select:focus { outline:none; border-color:var(--zt-green); }
         .day-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-            margin-bottom: 14px;
-            padding: 14px 18px;
-            background: var(--bg-input);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+            gap:10px; margin-top:10px; margin-bottom:14px;
+            padding:14px 18px; background:var(--bg-input);
+            border-radius:var(--radius-md); border:1px solid var(--border-color);
         }
-        .day-stat-item .ds-label {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        .day-stat-item .ds-value {
-            font-size: 18px;
-            font-weight: 700;
-            margin-top: 2px;
-        }
-        .day-stat-item .ds-value.positive { color: var(--zt-green); }
-        .day-stat-item .ds-value.negative { color: var(--danger); }
-
-        /* ============================================================
-           RECORD CARDS (mobile)
-           ============================================================ */
-        .record-cards {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .day-stat-item .ds-label { font-size:11px; font-weight:500; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; }
+        .day-stat-item .ds-value { font-size:18px; font-weight:700; margin-top:2px; }
+        .day-stat-item .ds-value.positive { color:var(--zt-green); }
+        .day-stat-item .ds-value.negative { color:var(--danger); }
+        .record-cards { display:none; flex-direction:column; gap:10px; }
         .record-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            transition: var(--transition);
+            background:var(--bg-card); border:1px solid var(--border-color);
+            border-radius:var(--radius-md); padding:14px 16px; transition:var(--transition);
         }
-        .record-card:hover { box-shadow: var(--shadow-sm); }
-        .record-card .rc-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .record-card .rc-type { font-weight: 600; font-size: 13px; }
-        .record-card .rc-amount { font-size: 17px; font-weight: 700; }
-        .record-card .rc-desc {
-            color: var(--text-muted);
-            font-size: 12px;
-            margin: 4px 0;
-        }
-        .record-card .rc-actions {
-            display: flex;
-            gap: 4px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* ============================================================
-           DIVIDER
-           ============================================================ */
-        .divider {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 18px 0;
-        }
-
-        /* ============================================================
-           SECTION LABEL
-           ============================================================ */
+        .record-card:hover { box-shadow:var(--shadow-sm); }
+        .record-card .rc-top { display:flex; justify-content:space-between; align-items:center; }
+        .record-card .rc-type { font-weight:600; font-size:13px; }
+        .record-card .rc-amount { font-size:17px; font-weight:700; }
+        .record-card .rc-desc { color:var(--text-muted); font-size:12px; margin:4px 0; }
+        .record-card .rc-actions { display:flex; gap:4px; margin-top:8px; flex-wrap:wrap; }
+        .divider { border:none; border-top:1px solid var(--border-color); margin:18px 0; }
         .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
+            font-size:11px; font-weight:700; text-transform:uppercase;
+            letter-spacing:0.6px; color:var(--text-muted); margin-bottom:12px;
         }
-
-        /* ============================================================
-           EMPTY STATE
-           ============================================================ */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-            gap: 10px;
-        }
-        .empty-state svg { opacity: 0.3; }
-        .empty-state p { font-size: 14px; }
-
-        /* ============================================================
-           TOAST
-           ============================================================ */
+        .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; color:var(--text-muted); gap:10px; }
+        .empty-state p { font-size:14px; }
         #toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
+            position:fixed; bottom:24px; right:24px; z-index:999;
+            display:flex; flex-direction:column; gap:8px; pointer-events:none;
         }
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 12px 18px;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            max-width: 340px;
-            animation: slideDown 0.25s ease-out;
-            pointer-events: auto;
-            color: var(--text-primary);
+            background:var(--bg-card); border:1px solid var(--border-color);
+            border-radius:var(--radius-md); padding:12px 18px; box-shadow:var(--shadow-lg);
+            display:flex; align-items:center; gap:10px; font-size:13px; font-weight:500;
+            max-width:340px; animation:slideDown 0.25s ease-out; pointer-events:auto; color:var(--text-primary);
         }
-        .toast-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
+        .toast-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .toast.success .toast-dot { background:var(--success); }
+        .toast.error .toast-dot { background:var(--danger); }
+        .toast.warning .toast-dot { background:var(--warning); }
+        .toast.info .toast-dot { background:var(--info); }
+        @media (max-width:768px) {
+            .topbar { padding:0 16px; }
+            .main-content { padding:16px; }
+            .stats-grid { grid-template-columns:1fr 1fr; }
+            .card-head { flex-direction:column; align-items:stretch; gap:8px; }
+            .page-header { flex-direction:column; align-items:stretch; }
+            .table-wrap { display:none; }
+            .record-cards { display:flex; }
+            .day-stats { grid-template-columns:1fr 1fr; }
+            .modal-box { padding:24px 20px; }
+            .login-card { padding:32px 24px; }
         }
-        .toast.success .toast-dot { background: var(--success); }
-        .toast.error .toast-dot { background: var(--danger); }
-        .toast.warning .toast-dot { background: var(--warning); }
-        .toast.info .toast-dot { background: var(--info); }
-
-        /* ============================================================
-           RESPONSIVE
-           ============================================================ */
-        @media (max-width: 768px) {
-            .topbar { padding: 0 16px; }
-            .main-content { padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .card-head { flex-direction: column; align-items: stretch; gap: 8px; }
-            .page-header { flex-direction: column; align-items: stretch; }
-            .table-wrap { display: none; }
-            .record-cards { display: flex; }
-            .day-stats { grid-template-columns: 1fr 1fr; }
-            .modal-box { padding: 24px 20px; }
-            .login-card { padding: 32px 24px; }
+        @media (max-width:480px) {
+            .stats-grid { grid-template-columns:1fr; }
+            .topbar-brand { display:none; }
+            .conn-pill { display:none; }
+            .day-stats { grid-template-columns:1fr 1fr; }
         }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .topbar-brand { display: none; }
-            .conn-pill { display: none; }
-            .day-stats { grid-template-columns: 1fr 1fr; }
-        }
-
-        .flex { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .flex-1 { flex: 1; }
-        .gap-4 { gap: 4px; }
-        .text-muted { color: var(--text-muted); }
-        .text-center { text-align: center; }
-        .mt-8 { margin-top: 8px; }
-        .mt-12 { margin-top: 12px; }
-        .mb-12 { margin-bottom: 12px; }
-        .w-full { width: 100%; }
-
-        .type-income { color: var(--zt-green-dark); font-weight: 600; }
-        .type-expense { color: var(--danger); font-weight: 600; }
+        .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .flex-1 { flex:1; }
+        .gap-4 { gap:4px; }
+        .text-muted { color:var(--text-muted); }
+        .text-center { text-align:center; }
+        .mt-8 { margin-top:8px; }
+        .mt-12 { margin-top:12px; }
+        .mb-12 { margin-bottom:12px; }
+        .w-full { width:100%; }
+        .type-income { color:var(--zt-green-dark); font-weight:600; }
+        .type-expense { color:var(--danger); font-weight:600; }
     </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div id="toast-container"></div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
     <div class="modal-box">
         <div class="modal-header">
@@ -955,10 +398,7 @@
     </div>
 </div>
 
-<!-- APP -->
 <div class="app-shell">
-
-    <!-- TOPBAR -->
     <header class="topbar">
         <div class="topbar-left">
             <a class="topbar-logo" href="#">
@@ -988,7 +428,6 @@
         </div>
     </header>
 
-    <!-- LOGIN -->
     <div id="loginSection">
         <div class="login-card">
             <div class="login-header">
@@ -1011,7 +450,6 @@
         </div>
     </div>
 
-    <!-- ADMIN PANEL -->
     <div id="adminPanel" class="panel">
         <div class="main-content">
             <div class="page-header anim-fade-up">
@@ -1020,9 +458,9 @@
                     <div class="page-sub" id="adminMonthLabel">Joriy oy statistikasi</div>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-secondary btn-sm" onclick="exportMonthExcel('admin')">
+                    <button class="btn btn-secondary btn-sm" onclick="exportMonthPDF('admin')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Hisobot
+                        PDF hisobot
                     </button>
                     <button class="btn btn-ghost btn-sm" onclick="adminShowSettings()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1034,7 +472,6 @@
                 </div>
             </div>
 
-            <!-- Stats -->
             <div class="stats-grid" id="adminStats">
                 <div class="stat-card">
                     <div class="stat-label">
@@ -1074,7 +511,6 @@
                 </div>
             </div>
 
-            <!-- Records -->
             <div class="card">
                 <div class="card-head">
                     <div class="card-title">
@@ -1083,11 +519,9 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Year / Month -->
                     <div class="year-selector" id="adminYearSelector"></div>
                     <div class="month-grid" id="adminMonthGrid"></div>
 
-                    <!-- Filters -->
                     <div class="filter-group">
                         <label>Kun:</label>
                         <input type="date" id="adminDayFilter" onchange="adminApplyFilters()">
@@ -1096,7 +530,6 @@
                         <input type="text" id="adminDescFilter" placeholder="Qidirish..." oninput="adminApplyFilters()" style="flex:1;min-width:120px;">
                     </div>
 
-                    <!-- Day Stats -->
                     <div id="adminDayStats" class="day-stats hidden">
                         <div class="day-stat-item"><div class="ds-label">Kirim</div><div class="ds-value positive" id="adminDayIncome">0</div></div>
                         <div class="day-stat-item"><div class="ds-label">Chiqim</div><div class="ds-value negative" id="adminDayExpense">0</div></div>
@@ -1108,7 +541,6 @@
                 </div>
             </div>
 
-            <!-- Settings -->
             <div id="adminSettings" class="card hidden">
                 <div class="card-head">
                     <div class="card-title">
@@ -1134,7 +566,6 @@
                 </div>
             </div>
 
-            <!-- Chat -->
             <div class="card">
                 <div class="card-head">
                     <div class="card-title">
@@ -1156,7 +587,6 @@
         </div>
     </div>
 
-    <!-- USER PANEL -->
     <div id="userPanel" class="panel">
         <div class="main-content">
             <div class="page-header anim-fade-up">
@@ -1165,9 +595,9 @@
                     <div class="page-sub" id="userMonthLabel">Joriy oy</div>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-secondary btn-sm" onclick="exportMonthExcel('user')">
+                    <button class="btn btn-secondary btn-sm" onclick="exportMonthPDF('user')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Hisobot
+                        PDF hisobot
                     </button>
                     <button class="btn btn-ghost btn-sm" onclick="userShowSettings()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1179,7 +609,6 @@
                 </div>
             </div>
 
-            <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-label">
@@ -1210,7 +639,6 @@
                 </div>
             </div>
 
-            <!-- Records -->
             <div class="card">
                 <div class="card-head">
                     <div class="card-title">
@@ -1241,7 +669,6 @@
                 </div>
             </div>
 
-            <!-- Settings -->
             <div id="userSettings" class="card hidden">
                 <div class="card-head">
                     <div class="card-title">Login / Parol</div>
@@ -1256,7 +683,6 @@
                 </div>
             </div>
 
-            <!-- Chat -->
             <div class="card">
                 <div class="card-head">
                     <div class="card-title">
@@ -1276,7 +702,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -1302,28 +727,24 @@ function toggleTheme() {
     var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
-    updateThemeIcon(next);
-    updateLogo(next);
-}
-function updateThemeIcon(theme) {
     var icon = document.getElementById('themeIcon');
-    if (theme === 'dark') {
+    if (next === 'dark') {
         icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
     } else {
         icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
     }
-}
-function updateLogo(theme) {
     var img = document.getElementById('topbarLogo');
-    if (img) {
-        img.src = theme === 'dark' ? '/logo-white.png' : '/logo-black.png';
-    }
+    if (img) img.src = next === 'dark' ? '/logo-white.png' : '/logo-black.png';
 }
 function loadTheme() {
     var saved = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
-    updateThemeIcon(saved);
-    updateLogo(saved);
+    var icon = document.getElementById('themeIcon');
+    if (saved === 'dark') {
+        icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+    var img = document.getElementById('topbarLogo');
+    if (img) img.src = saved === 'dark' ? '/logo-white.png' : '/logo-black.png';
 }
 
 // ============================================================
@@ -1429,12 +850,28 @@ function checkConnection() {
 //  LOAD DATA
 // ============================================================
 function loadAllData() {
-    return apiCall('/data/all').then(function(result) {
-        if (result.success) { appData = result; localStorage.setItem('appData', JSON.stringify(appData)); }
-    }).catch(function() {
-        var local = localStorage.getItem('appData');
-        if (local) try { appData = JSON.parse(local); } catch(e) {}
-    });
+    return apiCall('/data/all')
+        .then(function(result) {
+            if (result.success) {
+                appData.users = result.users || [];
+                appData.records = result.records || [];
+                appData.chat = result.chat || [];
+                localStorage.setItem('appData', JSON.stringify(appData));
+            }
+            return appData;
+        })
+        .catch(function() {
+            var local = localStorage.getItem('appData');
+            if (local) {
+                try {
+                    var parsed = JSON.parse(local);
+                    appData.users = parsed.users || [];
+                    appData.records = parsed.records || [];
+                    appData.chat = parsed.chat || [];
+                } catch(e) {}
+            }
+            return appData;
+        });
 }
 
 // ============================================================
@@ -1598,15 +1035,15 @@ function renderAdminRecords(recs) {
             actions += '<button class="btn btn-danger btn-sm" onclick="adminRejectRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
         }
         actions += '<button class="btn btn-ghost btn-sm" onclick="adminEditRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
-        actions += '<button class="btn btn-danger btn-sm" onclick="adminDeleteRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>';
+        actions += '<button class="btn btn-danger btn-sm" onclick="adminDeleteRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>';
         actions += '</div>';
         html += '<tr><td style="color:var(--text-muted);font-size:12px;">' + (idx+1) + '</td><td>' + r.date + '</td><td>' + typeHtml + '</td><td style="font-weight:600;">' + formatCurrency(r.amount) + '</td><td style="color:var(--text-secondary);">' + (r.desc || '—') + '</td><td><span class="badge badge-' + sc + '">' + st + '</span></td><td>' + actions + '</td></tr>';
     });
     html += '</tbody></table></div>';
     container.innerHTML = html;
-    // cards
+
     var ch = '';
-    recs.forEach(function(r, idx) {
+    recs.forEach(function(r) {
         var sc = r.status === 'approved' ? 'approved' : r.status === 'rejected' ? 'rejected' : 'pending';
         var st = r.status === 'approved' ? 'Tasdiqlangan' : r.status === 'rejected' ? 'Rad etilgan' : 'Kutilmoqda';
         var actions = '<div class="rc-actions">';
@@ -1614,7 +1051,7 @@ function renderAdminRecords(recs) {
             actions += '<button class="btn btn-success btn-sm" onclick="adminApproveRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></button>';
             actions += '<button class="btn btn-danger btn-sm" onclick="adminRejectRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
         }
-        actions += '<button class="btn btn-ghost btn-sm" onclick="adminEditRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+        actions += '<button class="btn btn-ghost btn-sm" onclick="adminEditRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
         actions += '<button class="btn btn-danger btn-sm" onclick="adminDeleteRecord(\'' + r.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>';
         actions += '</div>';
         ch += '<div class="record-card"><div class="rc-top"><span class="rc-type">' + (r.type === 'income' ? 'Kirim' : 'Chiqim') + '</span><span class="rc-amount">' + formatCurrency(r.amount) + '</span></div><div class="rc-desc">' + r.date + ' | ' + (r.desc || '—') + '</div><div><span class="badge badge-' + sc + '">' + st + '</span></div>' + actions + '</div>';
@@ -1622,14 +1059,37 @@ function renderAdminRecords(recs) {
     cards.innerHTML = ch;
 }
 function adminClearDayFilter() { document.getElementById('adminDayFilter').value = ''; adminApplyFilters(); }
-function adminApproveRecord(id) { apiCall('/data/records/' + id, 'PUT', { status: 'approved' }).then(function() { return loadAllData(); }).then(function() { adminApplyFilters(); showToast('Tasdiqlandi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); }); }
-function adminRejectRecord(id) { apiCall('/data/records/' + id, 'PUT', { status: 'rejected' }).then(function() { return loadAllData(); }).then(function() { adminApplyFilters(); showToast('Rad etildi', 'warning'); }).catch(function() { showToast('Xatolik', 'error'); }); }
-function adminDeleteRecord(id) { showConfirm('O\'chirish', 'Bu yozuvni o\'chirmoqchimisiz?', function() { apiCall('/data/records/' + id, 'DELETE').then(function() { return loadAllData(); }).then(function() { adminApplyFilters(); showToast('O\'chirildi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); }); }); }
+
+function adminApproveRecord(id) {
+    apiCall('/data/records/' + id, 'PUT', { status: 'approved' })
+        .then(function() { return loadAllData(); })
+        .then(function() { adminApplyFilters(); showToast('Yozuv tasdiqlandi!', 'success'); })
+        .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
+}
+function adminRejectRecord(id) {
+    apiCall('/data/records/' + id, 'PUT', { status: 'rejected' })
+        .then(function() { return loadAllData(); })
+        .then(function() { adminApplyFilters(); showToast('Yozuv rad etildi!', 'warning'); })
+        .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
+}
+function adminDeleteRecord(id) {
+    showConfirm('O\'chirish', 'Bu yozuvni o\'chirmoqchimisiz?', function() {
+        apiCall('/data/records/' + id, 'DELETE')
+            .then(function() { return loadAllData(); })
+            .then(function() { adminApplyFilters(); showToast('Yozuv o\'chirildi!', 'success'); })
+            .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
+    });
+}
 function adminEditRecord(id) {
     var rec = appData.records.find(function(r) { return r.id === id; });
     if (!rec) return;
     showPrompt('Summani o\'zgartirish', 'Yangi summa:', rec.amount, function(val) {
-        if (val && !isNaN(val)) { apiCall('/data/records/' + id, 'PUT', { amount: parseFloat(val) }).then(function() { return loadAllData(); }).then(function() { adminApplyFilters(); showToast('Yangilandi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); }); }
+        if (val && !isNaN(val)) {
+            apiCall('/data/records/' + id, 'PUT', { amount: parseFloat(val) })
+                .then(function() { return loadAllData(); })
+                .then(function() { adminApplyFilters(); showToast('Yozuv yangilandi!', 'success'); })
+                .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
+        }
     });
 }
 function adminShowAddRecord() {
@@ -1645,16 +1105,26 @@ function adminShowAddRecord() {
         var desc = document.getElementById('addRecordDesc').value || '';
         if (!amount || isNaN(amount)) { showToast('Summani to\'g\'ri kiriting', 'error'); return; }
         var newRec = { id: 'rec_' + Date.now(), date: date, type: type, amount: amount, desc: desc, status: 'pending', userId: currentUser.id, time: Date.now() };
-        apiCall('/data/records', 'POST', newRec).then(function() { return loadAllData(); }).then(function() { adminApplyFilters(); showToast('Yozuv qo\'shildi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); });
+        apiCall('/data/records', 'POST', newRec)
+            .then(function() { return loadAllData(); })
+            .then(function() { adminApplyFilters(); showToast('Yozuv qo\'shildi!', 'success'); })
+            .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
     });
 }
 function adminShowSettings() { document.getElementById('adminSettings').classList.toggle('hidden'); }
+
 function changeAdminCreds() {
     var login = document.getElementById('newAdminLogin').value.trim();
     var pass = document.getElementById('newAdminPass').value.trim();
     if (!login || !pass) { showToast('Maydonlarni to\'ldiring', 'warning'); return; }
+    if (pass.length < 6) { showToast('Parol kamida 6 belgi', 'warning'); return; }
     var admin = appData.users.find(function(u) { return u.id === 'admin'; });
-    if (admin) { apiCall('/auth/users/' + admin.id, 'PUT', { login: login, pass: pass }).then(function() { return loadAllData(); }).then(function() { showToast('Yangilandi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); }); }
+    if (admin) {
+        apiCall('/auth/users/' + admin.id, 'PUT', { login: login, pass: pass })
+            .then(function() { return loadAllData(); })
+            .then(function() { showToast('Admin maʼlumotlari yangilandi!', 'success'); })
+            .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
+    }
 }
 function addUser() {
     var role = document.getElementById('newUserRole').value;
@@ -1662,19 +1132,34 @@ function addUser() {
     var login = document.getElementById('newUserLogin').value.trim();
     var pass = document.getElementById('newUserPass').value.trim();
     if (!name || !login || !pass) { showToast('Barcha maydonlarni to\'ldiring', 'warning'); return; }
-    if (pass.length < 6) { showToast('Parol min 6 belgi', 'warning'); return; }
-    if (appData.users.find(function(u) { return u.login === login; })) { showToast('Login mavjud', 'error'); return; }
-    apiCall('/auth/register', 'POST', { id: 'user_' + Date.now(), name: name, role: role, login: login, pass: pass }).then(function() { return loadAllData(); }).then(function() { showToast('Foydalanuvchi qo\'shildi', 'success'); document.getElementById('newUserName').value = ''; document.getElementById('newUserLogin').value = ''; document.getElementById('newUserPass').value = ''; adminApplyFilters(); }).catch(function() { showToast('Xatolik', 'error'); });
+    if (pass.length < 6) { showToast('Parol kamida 6 belgi', 'warning'); return; }
+    if (appData.users.find(function(u) { return u.login === login; })) { showToast('Bunday login mavjud', 'error'); return; }
+    apiCall('/auth/register', 'POST', { id: 'user_' + Date.now(), name: name, role: role, login: login, pass: pass })
+        .then(function() { return loadAllData(); })
+        .then(function() {
+            showToast('Foydalanuvchi qo\'shildi!', 'success');
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserLogin').value = '';
+            document.getElementById('newUserPass').value = '';
+            adminApplyFilters();
+        })
+        .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
 }
 function adminSendChat() {
     var input = document.getElementById('adminChatInput');
     var text = input.value.trim();
     if (!text) return;
-    apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() }).then(function() { input.value = ''; return loadAllData(); }).then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); }).catch(function() { showToast('Xatolik', 'error'); });
+    apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() })
+        .then(function() { input.value = ''; return loadAllData(); })
+        .then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); showToast('Xabar yuborildi', 'success'); })
+        .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
 }
 function adminClearChat() {
     showConfirm('Chatni tozalash', 'Barcha xabarlar o\'chiriladi?', function() {
-        apiCall('/chat/clear/all', 'DELETE').then(function() { return loadAllData(); }).then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); showToast('Chat tozalandi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); });
+        apiCall('/chat/clear/all', 'DELETE')
+            .then(function() { return loadAllData(); })
+            .then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); showToast('Chat tozalandi!', 'success'); })
+            .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
     });
 }
 
@@ -1731,6 +1216,7 @@ function renderUserRecords(recs) {
     });
     html += '</tbody></table></div>';
     container.innerHTML = html;
+
     var ch = '';
     recs.forEach(function(r) {
         var sc = r.status === 'approved' ? 'approved' : r.status === 'rejected' ? 'rejected' : 'pending';
@@ -1740,6 +1226,7 @@ function renderUserRecords(recs) {
     cards.innerHTML = ch;
 }
 function userClearDayFilter() { document.getElementById('userDayFilter').value = ''; userApplyFilters(); }
+
 function userShowAddRecord() {
     var date = getToday();
     var html = '<div class="form-group"><label class="form-label">Sana</label><input type="date" class="form-input" id="userAddRecordDate" value="' + date + '"></div>' +
@@ -1753,54 +1240,178 @@ function userShowAddRecord() {
         var desc = document.getElementById('userAddRecordDesc').value || '';
         if (!amount || isNaN(amount)) { showToast('Summani to\'g\'ri kiriting', 'error'); return; }
         var newRec = { id: 'rec_' + Date.now(), date: date, type: type, amount: amount, desc: desc, status: 'pending', userId: currentUser.id, time: Date.now() };
-        apiCall('/data/records', 'POST', newRec).then(function() { return loadAllData(); }).then(function() { userApplyFilters(); showToast('Yozuv qo\'shildi, tasdiqlanishi kutilmoqda', 'success'); }).catch(function() { showToast('Xatolik', 'error'); });
+        apiCall('/data/records', 'POST', newRec)
+            .then(function() { return loadAllData(); })
+            .then(function() { userApplyFilters(); showToast('Yozuv qo\'shildi! Tasdiqlanishi kutilmoqda.', 'success'); })
+            .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
     });
 }
 function userShowSettings() { document.getElementById('userSettings').classList.toggle('hidden'); }
+
 function changeUserCreds() {
     var login = document.getElementById('userNewLogin').value.trim();
     var pass = document.getElementById('userNewPass').value.trim();
     if (!login || !pass) { showToast('Maydonlarni to\'ldiring', 'warning'); return; }
-    if (pass.length < 6) { showToast('Parol min 6 belgi', 'warning'); return; }
-    apiCall('/auth/users/' + currentUser.id, 'PUT', { login: login, pass: pass }).then(function() { return loadAllData(); }).then(function() { currentUser = appData.users.find(function(u) { return u.id === currentUser.id; }); showToast('Ma\'lumotlar yangilandi', 'success'); }).catch(function() { showToast('Xatolik', 'error'); });
+    if (pass.length < 6) { showToast('Parol kamida 6 belgi', 'warning'); return; }
+    apiCall('/auth/users/' + currentUser.id, 'PUT', { login: login, pass: pass })
+        .then(function() { return loadAllData(); })
+        .then(function() {
+            currentUser = appData.users.find(function(u) { return u.id === currentUser.id; });
+            showToast('Ma\'lumotlar yangilandi!', 'success');
+        })
+        .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
 }
 function userSendChat() {
     var input = document.getElementById('userChatInput');
     var text = input.value.trim();
     if (!text) return;
-    apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() }).then(function() { input.value = ''; return loadAllData(); }).then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); }).catch(function() { showToast('Xatolik', 'error'); });
+    apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() })
+        .then(function() { input.value = ''; return loadAllData(); })
+        .then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); showToast('Xabar yuborildi', 'success'); })
+        .catch(function() { showToast('Xatolik yuz berdi!', 'error'); });
 }
 
 // ============================================================
-//  EXPORT EXCEL
+//  PDF EXPORT
 // ============================================================
-function exportMonthExcel(panelType) {
+function exportMonthPDF(panelType) {
     var recs = getRecordsForMonth(selectedYear, selectedMonth);
     if (panelType === 'user' && currentUser && currentUser.role === 'worker') {
         recs = recs.filter(function(r) { return r.userId === currentUser.id; });
     }
-    if (recs.length === 0) { showToast('Bu oy uchun yozuv yo\'q', 'warning'); return; }
+    if (recs.length === 0) {
+        showToast('Bu oy uchun yozuv yo\'q', 'warning');
+        return;
+    }
+
     var stats = getMonthStats(selectedYear, selectedMonth);
-    var mn = getMonthName(selectedMonth);
-    var lines = ['\uFEFFZT Bizz Up — ' + mn + ' ' + selectedYear + ' oylik hisobot', ''];
-    lines.push('Kirim:,' + stats.income + ' so\'m');
-    lines.push('Chiqim:,' + stats.expense + ' so\'m');
-    lines.push('Sof foyda:,' + stats.profit + ' so\'m');
-    lines.push('');
-    lines.push('Sana,Tur,Summa,Izoh,Holat');
-    recs.forEach(function(r) {
-        var type = r.type === 'income' ? 'Kirim' : 'Chiqim';
-        var status = r.status === 'approved' ? 'Tasdiqlangan' : r.status === 'rejected' ? 'Rad etilgan' : 'Kutilmoqda';
-        lines.push([r.date, type, r.amount, (r.desc || ''), status].join(','));
+    var monthName = getMonthName(selectedMonth);
+    var dateStr = getToday();
+
+    var logoImg = document.querySelector('.topbar-logo img') || document.querySelector('.login-header .logo-wrap img');
+
+    if (logoImg) {
+        html2canvas(logoImg, { scale: 2, backgroundColor: null, logging: false })
+            .then(function(canvas) {
+                var logoDataUrl = canvas.toDataURL('image/png');
+                generatePDF(logoDataUrl, recs, stats, monthName, dateStr);
+            })
+            .catch(function() {
+                generatePDF(null, recs, stats, monthName, dateStr);
+            });
+    } else {
+        generatePDF(null, recs, stats, monthName, dateStr);
+    }
+}
+
+function generatePDF(logoDataUrl, recs, stats, monthName, dateStr) {
+    var doc = new jspdf.jsPDF('p', 'mm', 'a4');
+    var pageWidth = doc.internal.pageSize.getWidth();
+    var margin = 18;
+    var primaryColor = [0, 229, 69];
+    var textDark = [30, 30, 40];
+    var textLight = [100, 110, 130];
+
+    if (logoDataUrl) {
+        doc.addImage(logoDataUrl, 'PNG', margin, margin, 30, 12);
+    }
+
+    doc.setFontSize(22);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ZT Bizz Up', pageWidth - margin, margin + 8, { align: 'right' });
+
+    doc.setFontSize(12);
+    doc.setTextColor(textLight[0], textLight[1], textLight[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Biznes boshqaruvi tizimi', pageWidth - margin, margin + 16, { align: 'right' });
+
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(1.2);
+    doc.line(margin, margin + 24, pageWidth - margin, margin + 24);
+
+    var titleY = margin + 34;
+    doc.setFontSize(16);
+    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(monthName + ' ' + selectedYear + ' oylik hisobot', margin, titleY);
+
+    doc.setFontSize(11);
+    doc.setTextColor(textLight[0], textLight[1], textLight[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Sana: ' + dateStr, margin, titleY + 7);
+
+    var statsY = titleY + 20;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+    doc.text('Statistika', margin, statsY);
+
+    var statsData = [
+        ['Kirim', formatCurrency(stats.income), [0, 200, 83]],
+        ['Chiqim', formatCurrency(stats.expense), [239, 68, 68]],
+        ['Sof foyda', formatCurrency(stats.profit), stats.profit >= 0 ? [0, 200, 83] : [239, 68, 68]]
+    ];
+    statsData.forEach(function(row, i) {
+        var yPos = statsY + 8 + i * 9;
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+        doc.text(row[0], margin, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(row[2][0], row[2][1], row[2][2]);
+        doc.text(row[1], margin + 55, yPos);
     });
-    var blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'ZT_Bizz_Up_' + selectedYear + '_' + pad(selectedMonth) + '.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Hisobot yuklab olindi', 'success');
+
+    var tableY = statsY + 8 + statsData.length * 9 + 8;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+    doc.text('Yozuvlar', margin, tableY);
+
+    var columns = ['#', 'Sana', 'Tur', 'Summa', 'Izoh', 'Holat'];
+    var rows = [];
+    recs.forEach(function(r, idx) {
+        rows.push([
+            (idx + 1).toString(),
+            r.date,
+            r.type === 'income' ? 'Kirim' : 'Chiqim',
+            formatCurrency(r.amount),
+            r.desc || '—',
+            r.status === 'approved' ? 'Tasdiqlangan' : r.status === 'rejected' ? 'Rad etilgan' : 'Kutilmoqda'
+        ]);
+    });
+
+    doc.autoTable({
+        head: [columns],
+        body: rows,
+        startY: tableY + 6,
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 9, cellPadding: 2.5, textColor: [40,40,50], lineColor: [200,200,210], lineWidth: 0.2 },
+        headStyles: { fillColor: [0,229,69], textColor: [0,0,0], fontStyle: 'bold', fontSize: 9, halign: 'left' },
+        columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 1: { cellWidth: 25 }, 2: { cellWidth: 22 }, 3: { cellWidth: 38, halign: 'right' }, 4: { cellWidth: 'auto' }, 5: { cellWidth: 30 } },
+        alternateRowStyles: { fillColor: [248,250,252] },
+        didDrawCell: function(data) {
+            if (data.column.index === 5 && data.cell.raw) {
+                var status = data.cell.raw;
+                var color;
+                if (status === 'Tasdiqlangan') color = [0,200,83];
+                else if (status === 'Rad etilgan') color = [239,68,68];
+                else color = [245,158,11];
+                data.cell.styles.textColor = color;
+                data.cell.styles.fontStyle = 'bold';
+            }
+        }
+    });
+
+    var finalY = doc.lastAutoTable.finalY + 12;
+    doc.setFontSize(9);
+    doc.setTextColor(textLight[0], textLight[1], textLight[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text('ZT Bizz Up © 2026 — Barcha huquqlar himoyalangan', margin, finalY);
+    doc.text('Sahifa 1/' + doc.internal.getNumberOfPages(), pageWidth - margin, finalY, { align: 'right' });
+
+    doc.save('ZT_Bizz_Up_' + selectedYear + '_' + pad(selectedMonth) + '.pdf');
+    showToast('PDF hisobot yuklab olindi!', 'success');
 }
 
 // ============================================================
@@ -1832,8 +1443,8 @@ function init() {
         }
     });
 
-    console.log('ZT Bizz Up tizimi yuklandi');
-    console.log('Admin: admin/123 | Boshliq: boss/123 | Ishchi: worker/123');
+    console.log('✅ ZT Bizz Up tizimi yuklandi');
+    console.log('👤 Admin: admin/123 | Boshliq: boss/123 | Ishchi: worker/123');
 }
 
 init();
