@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const dotenv = require('dotenv');
 const path = require('path');
-const connectDB = require('./backend/src/config/database');
+const connectDB = require('./src/config/database'); // ./src/config/database
 
 // Load env vars
 dotenv.config();
@@ -28,13 +28,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files (frontend)
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, 'frontend')));
+    app.use(express.static(path.join(__dirname, '../frontend')));
 }
 
 // API Routes
-app.use('/api/auth', require('./backend/src/routes/authRoutes'));
-app.use('/api/data', require('./backend/src/routes/dataRoutes'));
-app.use('/api/chat', require('./backend/src/routes/chatRoutes'));
+app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/data', require('./src/routes/dataRoutes'));
+app.use('/api/chat', require('./src/routes/chatRoutes'));
 
 // Health check
 app.get('/api/ping', (req, res) => {
@@ -49,7 +49,7 @@ app.get('/api/ping', (req, res) => {
 // Serve frontend for all other routes (production)
 if (process.env.NODE_ENV === 'production') {
     app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'frontend/index.html'));
+        res.sendFile(path.join(__dirname, '../frontend/index.html'));
     });
 }
 
@@ -64,6 +64,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const mongoose = require('mongoose');
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`);
