@@ -23,34 +23,19 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// ===== CSP sozlamalari - BARCHA INLINE RUXSATLAR BILAN =====
+// CSP sozlamalari
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: [
-                "'self'",
-                "'unsafe-inline'",
-                "'unsafe-eval'",
-                "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com"
-            ],
-            scriptSrcAttr: [
-                "'unsafe-inline'"
-            ],
-            styleSrc: [
-                "'self'",
-                "'unsafe-inline'",
-                "https://fonts.googleapis.com",
-                "https://cdnjs.cloudflare.com"
-            ],
-            styleSrcAttr: [
-                "'unsafe-inline'"
-            ],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            scriptSrcAttr: ["'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            styleSrcAttr: ["'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
             connectSrc: ["'self'", "https:", "wss:"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
             frameSrc: ["'self'"],
@@ -63,12 +48,15 @@ app.use(helmet({
 }));
 
 app.use(compression());
+
+// CORS - to'liq ruxsat
 app.use(cors({
     origin: '*',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -88,7 +76,7 @@ app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/data', require('./src/routes/dataRoutes'));
 app.use('/api/chat', require('./src/routes/chatRoutes'));
 
-// Health check
+// Health check (no auth required)
 app.get('/api/ping', (req, res) => {
     const mongoose = require('mongoose');
     res.json({ 

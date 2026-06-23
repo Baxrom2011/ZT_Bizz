@@ -9,20 +9,18 @@ exports.getAllData = async (req, res) => {
         const records = await Record.find({});
         const chat = await Chat.find({}).sort({ time: 1 });
 
-        // Remove passwords from response
-        const usersWithoutPass = users.map(user => {
-            const userObj = user.toObject();
-            delete userObj.pass;
-            return userObj;
-        });
-
         res.json({
-            users: usersWithoutPass,
-            records,
-            chat
+            success: true,
+            users: users.map(u => u.toJSON()),
+            records: records.map(r => r.toJSON()),
+            chat: chat.map(c => c.toJSON())
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Get all data error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -34,21 +32,11 @@ exports.saveAllData = async (req, res) => {
         // Sync users
         if (users && Array.isArray(users)) {
             for (const userData of users) {
-                const existingUser = await User.findOne({ id: userData.id });
-                if (existingUser) {
-                    // Update existing user
-                    if (userData.pass && userData.pass.length < 60) {
-                        // Password is plain text, hash it
-                        const bcrypt = require('bcryptjs');
-                        const salt = await bcrypt.genSalt(10);
-                        userData.pass = await bcrypt.hash(userData.pass, salt);
-                    }
-                    await User.findOneAndUpdate({ id: userData.id }, userData, { new: true });
-                } else {
-                    // Create new user
-                    const newUser = new User(userData);
-                    await newUser.save();
-                }
+                await User.findOneAndUpdate(
+                    { id: userData.id },
+                    userData,
+                    { upsert: true, new: true }
+                );
             }
         }
 
@@ -72,9 +60,16 @@ exports.saveAllData = async (req, res) => {
             }
         }
 
-        res.json({ success: true, message: 'Data synced successfully' });
+        res.json({ 
+            success: true, 
+            message: 'Data synced successfully' 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Sync data error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -83,12 +78,22 @@ exports.getRecordsByDate = async (req, res) => {
     try {
         const { date } = req.query;
         if (!date) {
-            return res.status(400).json({ success: false, message: 'Date is required' });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Date is required' 
+            });
         }
-        const records = await Record.find({ date });
-        res.json({ success: true, records });
+        const records = await Record.find({ date: date });
+        res.json({ 
+            success: true, 
+            records: records.map(r => r.toJSON()) 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Get records error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -96,8 +101,15 @@ exports.getRecordsByDate = async (req, res) => {
 exports.getMonthStats = async (req, res) => {
     try {
         const { month } = req.query;
+        if (!month) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Month is required' 
+            });
+        }
+        
         const records = await Record.find({ 
-            date: { $regex: `^${month}` },
+            date: { $regex: '^' + month },
             status: 'approved'
         });
         
@@ -110,13 +122,17 @@ exports.getMonthStats = async (req, res) => {
         res.json({
             success: true,
             stats: {
-                income,
-                expense,
+                income: income,
+                expense: expense,
                 profit: income - expense
             }
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Get stats error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -126,9 +142,16 @@ exports.createRecord = async (req, res) => {
         const recordData = req.body;
         const newRecord = new Record(recordData);
         await newRecord.save();
-        res.json({ success: true, record: newRecord });
+        res.json({ 
+            success: true, 
+            record: newRecord.toJSON() 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Create record error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -138,16 +161,26 @@ exports.updateRecord = async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
         const record = await Record.findOneAndUpdate(
-            { id },
+            { id: id },
             updates,
             { new: true }
         );
         if (!record) {
-            return res.status(404).json({ success: false, message: 'Record not found' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Record not found' 
+            });
         }
-        res.json({ success: true, record });
+        res.json({ 
+            success: true, 
+            record: record.toJSON() 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Update record error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -155,34 +188,22 @@ exports.updateRecord = async (req, res) => {
 exports.deleteRecord = async (req, res) => {
     try {
         const { id } = req.params;
-        const record = await Record.findOneAndDelete({ id });
+        const record = await Record.findOneAndDelete({ id: id });
         if (!record) {
-            return res.status(404).json({ success: false, message: 'Record not found' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Record not found' 
+            });
         }
-        res.json({ success: true, message: 'Record deleted' });
+        res.json({ 
+            success: true, 
+            message: 'Record deleted' 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// Get chat messages
-exports.getChatMessages = async (req, res) => {
-    try {
-        const messages = await Chat.find({}).sort({ time: 1 });
-        res.json({ success: true, messages });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// Add chat message
-exports.addChatMessage = async (req, res) => {
-    try {
-        const { sender, text, time } = req.body;
-        const newMessage = new Chat({ sender, text, time });
-        await newMessage.save();
-        res.json({ success: true, message: newMessage });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Delete record error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };

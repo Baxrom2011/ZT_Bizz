@@ -2,13 +2,17 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// Login
 exports.login = async (req, res) => {
     try {
         const { login, pass } = req.body;
         
+        console.log('Login attempt:', login);
+        
         // Find user by login
         const user = await User.findOne({ login });
         if (!user) {
+            console.log('User not found:', login);
             return res.status(401).json({ 
                 success: false, 
                 message: 'Login yoki parol xato!' 
@@ -18,6 +22,7 @@ exports.login = async (req, res) => {
         // Check password
         const isMatch = await user.comparePassword(pass);
         if (!isMatch) {
+            console.log('Password incorrect for:', login);
             return res.status(401).json({ 
                 success: false, 
                 message: 'Login yoki parol xato!' 
@@ -32,24 +37,27 @@ exports.login = async (req, res) => {
                 role: user.role,
                 login: user.login 
             },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'default_secret_key',
             { expiresIn: '7d' }
         );
 
+        console.log('Login successful:', login);
+        
         res.json({
             success: true,
-            token,
+            token: token,
             user: user.toJSON()
         });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ 
             success: false, 
-            message: error.message 
+            message: error.message || 'Server error' 
         });
     }
 };
 
+// Register
 exports.register = async (req, res) => {
     try {
         const { id, name, role, login, pass } = req.body;
@@ -82,6 +90,7 @@ exports.register = async (req, res) => {
     }
 };
 
+// Get all users
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find({});
@@ -98,6 +107,7 @@ exports.getUsers = async (req, res) => {
     }
 };
 
+// Update user
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -109,7 +119,7 @@ exports.updateUser = async (req, res) => {
         }
 
         const user = await User.findOneAndUpdate(
-            { id },
+            { id: id },
             updates,
             { new: true }
         );
@@ -134,12 +144,11 @@ exports.updateUser = async (req, res) => {
     }
 };
 
-// deleteUser funksiyasi qo'shildi
+// Delete user
 exports.deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Adminni o'chirib bo'lmaydi
         if (id === 'admin') {
             return res.status(400).json({ 
                 success: false, 
@@ -147,7 +156,7 @@ exports.deleteUser = async (req, res) => {
             });
         }
         
-        const user = await User.findOneAndDelete({ id });
+        const user = await User.findOneAndDelete({ id: id });
         
         if (!user) {
             return res.status(404).json({ 
