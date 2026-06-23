@@ -708,7 +708,6 @@
 //  CONFIG
 // ============================================================
 // Render.com da frontend va backend bir xil domenda
-// Shuning uchun nisbiy yo'l ishlatamiz
 var API_URL = '/api';
 
 var authToken = localStorage.getItem('authToken') || '';
@@ -717,6 +716,7 @@ var appData = { users: [], records: [], chat: [] };
 var modalCallback = null;
 var selectedYear = new Date().getFullYear();
 var selectedMonth = new Date().getMonth() + 1;
+
 // ============================================================
 //  THEME
 // ============================================================
@@ -764,7 +764,6 @@ function showToast(message, type) {
         setTimeout(function() { toast.remove(); }, 300);
     }, 3000);
 }
-function showAlert(msg, type) { showToast(msg, type); }
 
 // ============================================================
 //  MODAL
@@ -830,15 +829,38 @@ function formatCurrency(amount) {
 // ============================================================
 function apiCall(endpoint, method, body) {
     method = method || 'GET';
-    var headers = { 'Content-Type': 'application/json' };
-    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-    var opts = { method: method, headers: headers };
+    var headers = { 
+        'Content-Type': 'application/json' 
+    };
+    if (authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    var opts = { 
+        method: method, 
+        headers: headers 
+    };
     if (body) opts.body = JSON.stringify(body);
-    return fetch(API_URL + endpoint, opts).then(function(r) { return r.json(); }).catch(function(e) { console.error(e); throw e; });
+    return fetch(API_URL + endpoint, opts)
+        .then(function(r) { 
+            if (!r.ok) {
+                return r.json().then(function(data) {
+                    throw new Error(data.message || 'Request failed');
+                });
+            }
+            return r.json(); 
+        })
+        .catch(function(e) { 
+            console.error('❌ API Error:', e); 
+            throw e; 
+        });
 }
+
 function checkConnection() {
     fetch(API_URL + '/ping').then(function(r) {
-        if (r.ok) { document.getElementById('connDot').className = 'conn-dot online'; document.getElementById('connLabel').textContent = 'Ulangan'; }
+        if (r.ok) { 
+            document.getElementById('connDot').className = 'conn-dot online'; 
+            document.getElementById('connLabel').textContent = 'Ulangan'; 
+        }
         else throw new Error();
     }).catch(function() {
         document.getElementById('connDot').className = 'conn-dot offline';
@@ -847,7 +869,7 @@ function checkConnection() {
 }
 
 // ============================================================
-//  LOAD DATA - FIXED
+//  LOAD DATA
 // ============================================================
 function loadAllData() {
     return apiCall('/data/all')
@@ -877,7 +899,7 @@ function loadAllData() {
 }
 
 // ============================================================
-//  CHAT - FIXED
+//  CHAT
 // ============================================================
 function renderChat(containerId, messages) {
     var el = document.getElementById(containerId);
@@ -907,20 +929,63 @@ function renderChat(containerId, messages) {
 function login() {
     var loginVal = document.getElementById('loginUsername').value.trim();
     var passVal = document.getElementById('loginPassword').value.trim();
+    
+    if (!loginVal || !passVal) {
+        showToast('Login va parolni kiriting!', 'warning');
+        return;
+    }
+    
     apiCall('/auth/login', 'POST', { login: loginVal, pass: passVal })
         .then(function(result) {
-            if (!result.success) { showToast(result.message || 'Xatolik', 'error'); return; }
-            authToken = result.token; localStorage.setItem('authToken', authToken);
-            currentUser = result.user;
-            return loadAllData();
+            if (!result.success) { 
+                showToast(result.message || 'Xatolik', 'error'); 
+                return; 
+            }
+            
+            authToken = result.token;
+            localStorage.setItem('authToken', authToken);
+            
+            // Token dan user ma'lumotlarini olish
+            try {
+                const tokenParts = authToken.split('.');
+                if (tokenParts.length === 3) {
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    console.log('🔍 Login token payload:', payload);
+                    
+                    // Backend dan kelgan user ma'lumotlarini ishlatamiz
+                    currentUser = result.user;
+                    
+                    // Agar result.user da id bo'lmasa, tokendan olamiz
+                    if (!currentUser.id && payload.id) {
+                        currentUser.id = payload.id;
+                    }
+                    
+                    console.log('✅ Logged in as:', currentUser.name);
+                    console.log('👤 User ID:', currentUser.id);
+                    console.log('👔 Role:', currentUser.role);
+                    
+                    return loadAllData();
+                } else {
+                    throw new Error('Invalid token format');
+                }
+            } catch (error) {
+                console.error('❌ Token parse error:', error);
+                showToast('Login xatolik!', 'error');
+                logout();
+                return;
+            }
         })
         .then(function() {
             if (!currentUser) return;
+            
+            // UI ni yangilash
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userBadge').classList.remove('hidden');
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('userNameLabel').textContent = currentUser.name;
             document.getElementById('userAvatarText').textContent = currentUser.name.charAt(0).toUpperCase();
+            
+            // Rol bo'yicha panelni ko'rsatish
             if (currentUser.role === 'admin') {
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('userPanel').classList.remove('active');
@@ -930,22 +995,34 @@ function login() {
                 document.getElementById('adminPanel').classList.remove('active');
                 userLoadDashboard();
             }
+            
             showToast('Xush kelibsiz, ' + currentUser.name + '!', 'success');
         })
-        .catch(function() { showToast('Server bilan ulanishda xatolik', 'error'); });
+        .catch(function(error) {
+            console.error('❌ Login error:', error);
+            showToast('Server bilan ulanishda xatolik: ' + error.message, 'error');
+        });
 }
+
 function logout() {
-    currentUser = null; authToken = ''; localStorage.removeItem('authToken');
+    currentUser = null;
+    authToken = '';
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('appData');
+    
     document.getElementById('adminPanel').classList.remove('active');
     document.getElementById('userPanel').classList.remove('active');
     document.getElementById('loginSection').style.display = 'flex';
     document.getElementById('userBadge').classList.add('hidden');
     document.getElementById('logoutBtn').classList.add('hidden');
     document.getElementById('loginPassword').value = '';
+    document.getElementById('loginUsername').value = 'admin';
+    
+    console.log('👋 Logged out successfully');
 }
 
 // ============================================================
-//  YEAR / MONTH SELECTOR - FIXED
+//  YEAR / MONTH SELECTOR
 // ============================================================
 function renderYearSelector(containerId) {
     var container = document.getElementById(containerId);
@@ -1153,7 +1230,7 @@ function addUser() {
 }
 
 // ============================================================
-//  CHAT FUNCTIONS - FIXED
+//  CHAT FUNCTIONS
 // ============================================================
 function adminSendChat() {
     var input = document.getElementById('adminChatInput');
@@ -1284,7 +1361,7 @@ function changeUserCreds() {
 }
 
 // ============================================================
-//  USER CHAT - FIXED
+//  USER CHAT
 // ============================================================
 function userSendChat() {
     var input = document.getElementById('userChatInput');
@@ -1304,7 +1381,7 @@ function userSendChat() {
 }
 
 // ============================================================
-//  PDF EXPORT - FIXED
+//  PDF EXPORT
 // ============================================================
 function exportMonthPDF(panelType) {
     var recs = getRecordsForMonth(selectedYear, selectedMonth);
@@ -1455,23 +1532,66 @@ function init() {
     setInterval(checkConnection, 30000);
 
     loadAllData().then(function() {
+        // TOKEN ni tekshiramiz
         if (authToken) {
-            var user = appData.users.find(function(u) { return u.id === 'admin'; });
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('userBadge').classList.remove('hidden');
-                document.getElementById('logoutBtn').classList.remove('hidden');
-                document.getElementById('userNameLabel').textContent = user.name;
-                document.getElementById('userAvatarText').textContent = user.name.charAt(0).toUpperCase();
-                if (user.role === 'admin') {
-                    document.getElementById('adminPanel').classList.add('active');
-                    adminLoadDashboard();
+            // Token dan foydalanuvchi ma'lumotlarini olish
+            try {
+                const tokenParts = authToken.split('.');
+                if (tokenParts.length === 3) {
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    console.log('🔍 Token payload:', payload);
+                    
+                    // Token dan user ID ni olish
+                    const userId = payload.id;
+                    console.log('👤 User ID from token:', userId);
+                    
+                    // User ni appData.users dan topish
+                    var user = appData.users.find(function(u) { 
+                        return u.id === userId; 
+                    });
+                    
+                    // Agar user topilmasa, login orqali qidirish
+                    if (!user && payload.login) {
+                        user = appData.users.find(function(u) { 
+                            return u.login === payload.login; 
+                        });
+                    }
+                    
+                    if (user) {
+                        currentUser = user;
+                        console.log('✅ User found:', currentUser.name);
+                        
+                        document.getElementById('loginSection').style.display = 'none';
+                        document.getElementById('userBadge').classList.remove('hidden');
+                        document.getElementById('logoutBtn').classList.remove('hidden');
+                        document.getElementById('userNameLabel').textContent = currentUser.name;
+                        document.getElementById('userAvatarText').textContent = currentUser.name.charAt(0).toUpperCase();
+                        
+                        if (currentUser.role === 'admin') {
+                            document.getElementById('adminPanel').classList.add('active');
+                            document.getElementById('userPanel').classList.remove('active');
+                            adminLoadDashboard();
+                        } else {
+                            document.getElementById('userPanel').classList.add('active');
+                            document.getElementById('adminPanel').classList.remove('active');
+                            userLoadDashboard();
+                        }
+                    } else {
+                        // User topilmadi - logout
+                        console.warn('⚠️ User not found, logging out');
+                        logout();
+                    }
                 } else {
-                    document.getElementById('userPanel').classList.add('active');
-                    userLoadDashboard();
+                    // Token not valid
+                    console.warn('⚠️ Invalid token format');
+                    logout();
                 }
+            } catch (error) {
+                console.error('❌ Token decode error:', error);
+                logout();
             }
+        } else {
+            console.log('ℹ️ No auth token found');
         }
     });
 
