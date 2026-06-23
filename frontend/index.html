@@ -707,15 +707,16 @@
 // ============================================================
 //  CONFIG
 // ============================================================
-// Render.com da frontend va backend bir xil domenda
-var API_URL = '/api';
+// API_URL ni dinamik qilamiz - qaysi qurilmada bo'lishidan qat'iy nazar ishlaydi
+var API_URL = window.location.origin + '/api';
 
-var authToken = localStorage.getItem('authToken') || '';
-var currentUser = null;
-var appData = { users: [], records: [], chat: [] };
-var modalCallback = null;
-var selectedYear = new Date().getFullYear();
-var selectedMonth = new Date().getMonth() + 1;
+// Agar localhost da ishlayotgan bo'lsa
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    API_URL = 'http://localhost:5000/api';
+}
+
+console.log('📍 API_URL:', API_URL);
+console.log('📍 Hostname:', window.location.hostname);
 
 // ============================================================
 //  THEME
@@ -840,32 +841,35 @@ function apiCall(endpoint, method, body) {
         headers: headers 
     };
     if (body) opts.body = JSON.stringify(body);
+    
+    console.log('📤 API Request:', {
+        url: API_URL + endpoint,
+        method: method,
+        headers: headers,
+        body: body
+    });
+    
     return fetch(API_URL + endpoint, opts)
         .then(function(r) { 
+            console.log('📥 API Response Status:', r.status);
             if (!r.ok) {
-                return r.json().then(function(data) {
-                    throw new Error(data.message || 'Request failed');
+                return r.text().then(function(text) {
+                    console.error('❌ API Error Response:', text);
+                    try {
+                        var data = JSON.parse(text);
+                        throw new Error(data.message || 'Request failed');
+                    } catch(e) {
+                        throw new Error('Server error: ' + r.status);
+                    }
                 });
             }
             return r.json(); 
         })
         .catch(function(e) { 
             console.error('❌ API Error:', e); 
+            showToast('❌ Server bilan ulanishda xatolik: ' + e.message, 'error');
             throw e; 
         });
-}
-
-function checkConnection() {
-    fetch(API_URL + '/ping').then(function(r) {
-        if (r.ok) { 
-            document.getElementById('connDot').className = 'conn-dot online'; 
-            document.getElementById('connLabel').textContent = 'Ulangan'; 
-        }
-        else throw new Error();
-    }).catch(function() {
-        document.getElementById('connDot').className = 'conn-dot offline';
-        document.getElementById('connLabel').textContent = 'Ulanmagan';
-    });
 }
 
 // ============================================================
@@ -935,8 +939,12 @@ function login() {
         return;
     }
     
+    console.log('🔑 Login attempt:', { login: loginVal });
+    showToast('⏳ Kuting, tizimga kirilmoqda...', 'info');
+    
     apiCall('/auth/login', 'POST', { login: loginVal, pass: passVal })
         .then(function(result) {
+            console.log('📥 Login response:', result);
             if (!result.success) { 
                 showToast(result.message || 'Xatolik', 'error'); 
                 return; 
@@ -945,35 +953,36 @@ function login() {
             authToken = result.token;
             localStorage.setItem('authToken', authToken);
             
-            // Token dan user ma'lumotlarini olish
+            // Backend dan kelgan user ma'lumotlarini ishlatamiz
+            currentUser = result.user;
+            
+            // Token dan qo'shimcha ma'lumot olish
             try {
                 const tokenParts = authToken.split('.');
                 if (tokenParts.length === 3) {
                     const payload = JSON.parse(atob(tokenParts[1]));
-                    console.log('🔍 Login token payload:', payload);
-                    
-                    // Backend dan kelgan user ma'lumotlarini ishlatamiz
-                    currentUser = result.user;
+                    console.log('🔍 Token payload:', payload);
                     
                     // Agar result.user da id bo'lmasa, tokendan olamiz
                     if (!currentUser.id && payload.id) {
                         currentUser.id = payload.id;
                     }
-                    
-                    console.log('✅ Logged in as:', currentUser.name);
-                    console.log('👤 User ID:', currentUser.id);
-                    console.log('👔 Role:', currentUser.role);
-                    
-                    return loadAllData();
-                } else {
-                    throw new Error('Invalid token format');
+                    if (!currentUser.name && payload.name) {
+                        currentUser.name = payload.name;
+                    }
+                    if (!currentUser.role && payload.role) {
+                        currentUser.role = payload.role;
+                    }
                 }
             } catch (error) {
-                console.error('❌ Token parse error:', error);
-                showToast('Login xatolik!', 'error');
-                logout();
-                return;
+                console.warn('⚠️ Token parse warning:', error);
             }
+            
+            console.log('✅ Logged in as:', currentUser.name);
+            console.log('👤 User ID:', currentUser.id);
+            console.log('👔 Role:', currentUser.role);
+            
+            return loadAllData();
         })
         .then(function() {
             if (!currentUser) return;
@@ -1000,7 +1009,13 @@ function login() {
         })
         .catch(function(error) {
             console.error('❌ Login error:', error);
-            showToast('Server bilan ulanishda xatolik: ' + error.message, 'error');
+            if (error.message && error.message.includes('buffering timed out')) {
+                showToast('❌ MongoDB ga ulanish vaqti tugadi! Iltimos, 1 daqiqadan keyin qayta urinib ko\'ring.', 'error');
+            } else if (error.message && error.message.includes('ECONNREFUSED')) {
+                showToast('❌ Server ishlamayapti! Iltimos, keyinroq qayta urinib ko\'ring.', 'error');
+            } else {
+                showToast('❌ Server bilan ulanishda xatolik: ' + error.message, 'error');
+            }
         });
 }
 
@@ -1010,17 +1025,22 @@ function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('appData');
     
+    // Panellarni yopish
     document.getElementById('adminPanel').classList.remove('active');
     document.getElementById('userPanel').classList.remove('active');
+    
+    // Login sahifasini ko'rsatish
     document.getElementById('loginSection').style.display = 'flex';
     document.getElementById('userBadge').classList.add('hidden');
     document.getElementById('logoutBtn').classList.add('hidden');
+    
+    // Inputlarni tozalash
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginUsername').value = 'admin';
     
     console.log('👋 Logged out successfully');
+    showToast('Tizimdan chiqildi!', 'info');
 }
-
 // ============================================================
 //  YEAR / MONTH SELECTOR
 // ============================================================
@@ -1527,30 +1547,38 @@ function generatePDF(logoDataUrl, recs, stats, monthName, dateStr) {
 //  INIT
 // ============================================================
 function init() {
+    console.log('🚀 Initializing app...');
+    console.log('📍 Origin:', window.location.origin);
+    console.log('📍 API_URL:', API_URL);
+    console.log('📍 Hostname:', window.location.hostname);
+    console.log('📍 User Agent:', navigator.userAgent);
+    
     loadTheme();
     checkConnection();
     setInterval(checkConnection, 30000);
 
     loadAllData().then(function() {
-        // TOKEN ni tekshiramiz
+        console.log('📦 AppData loaded:', {
+            users: appData.users.length,
+            records: appData.records.length,
+            chat: appData.chat.length
+        });
+        
         if (authToken) {
-            // Token dan foydalanuvchi ma'lumotlarini olish
+            console.log('🔑 Auth token found');
             try {
                 const tokenParts = authToken.split('.');
                 if (tokenParts.length === 3) {
                     const payload = JSON.parse(atob(tokenParts[1]));
                     console.log('🔍 Token payload:', payload);
                     
-                    // Token dan user ID ni olish
                     const userId = payload.id;
                     console.log('👤 User ID from token:', userId);
                     
-                    // User ni appData.users dan topish
                     var user = appData.users.find(function(u) { 
                         return u.id === userId; 
                     });
                     
-                    // Agar user topilmasa, login orqali qidirish
                     if (!user && payload.login) {
                         user = appData.users.find(function(u) { 
                             return u.login === payload.login; 
@@ -1577,12 +1605,10 @@ function init() {
                             userLoadDashboard();
                         }
                     } else {
-                        // User topilmadi - logout
                         console.warn('⚠️ User not found, logging out');
                         logout();
                     }
                 } else {
-                    // Token not valid
                     console.warn('⚠️ Invalid token format');
                     logout();
                 }
@@ -1598,8 +1624,6 @@ function init() {
     console.log('✅ ZT Bizz Up tizimi yuklandi');
     console.log('👤 Admin: admin/123 | Boshliq: boss/123 | Ishchi: worker/123');
 }
-
-init();
 </script>
 </body>
 </html>

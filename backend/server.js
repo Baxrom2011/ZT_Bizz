@@ -68,13 +68,16 @@ app.use(helmet({
 app.use(compression());
 
 // ✅ ИСПРАВЛЕНО: Более точные настройки CORS
+// CORS - barcha domainlarga ruxsat
 app.use(cors({
-    origin: '*',
+    origin: '*',  // yoki ['https://zt-bizz.onrender.com', 'http://localhost:5000']
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
+// OPTIONS so'rovlariga javob berish
+app.options('*', cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -252,7 +255,31 @@ app.use((err, req, res, next) => {
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 });
-
+// Serve static files - barcha qurilmalar uchun
+app.use(express.static(path.join(__dirname, '../frontend'), {
+    maxAge: '1d',
+    etag: true,
+    lastModified: true,
+    setHeaders: function(res, path) {
+        // Cache headers
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        // CORS headers
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+}));
+// Request logging - barcha so'rovlarni log qilish
+app.use((req, res, next) => {
+    const start = Date.now();
+    console.log(`📥 ${req.method} ${req.path}`);
+    console.log(`📋 Headers:`, req.headers);
+    console.log(`📦 Body:`, req.body);
+    
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`📤 ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
+    });
+    next();
+});
 // ============================================================
 //  SERVER START
 // ============================================================
