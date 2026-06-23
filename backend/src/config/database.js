@@ -1,131 +1,99 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-// Глобальное состояние
-let isConnecting = false;
-let connectionAttempts = 0;
-const MAX_RETRIES = 5;
-let keepAliveInterval = null;
+let retryCount = 0;
+const MAX_RETRIES = 10;
 
 const connectDB = async () => {
-    // Предотвращаем множественные подключения
-    if (isConnecting) {
-        console.log('⏳ Connection already in progress...');
-        return mongoose.connection;
-    }
-
-    // Проверяем текущее состояние
-    if (mongoose.connection.readyState === 1) {
-        console.log('✅ Already connected to MongoDB');
-        return mongoose.connection;
-    }
-
     try {
-        isConnecting = true;
-        connectionAttempts++;
-        
-        console.log(`🔄 Connecting to MongoDB (attempt ${connectionAttempts})...`);
+        console.log(`🔄 Connecting to MongoDB (attempt ${retryCount + 1})...`);
         
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
             serverSelectionTimeoutMS: 60000,
             socketTimeoutMS: 60000,
-            maxPoolSize: 200,
-            minPoolSize: 20,
-            maxIdleTimeMS: 60000,
+            connectTimeoutMS: 60000,
+            maxPoolSize: 50,
+            minPoolSize: 5,
             retryWrites: true,
             retryReads: true,
-            autoIndex: true,
-            keepAlive: true,
-            keepAliveInitialDelay: 300000,
-            connectTimeoutMS: 30000,
-            heartbeatFrequencyMS: 10000,
+            // keepAlive O'CHIRILDI - MongoDB 6.x da qo'llab-quvvatlanmaydi
+            // family: 4, // Bu ham ba'zi versiyalarda muammo berishi mumkin
         });
-        
-        isConnecting = false;
-        connectionAttempts = 0;
         
         console.log(`✅ MongoDB connected: ${conn.connection.host}`);
         console.log(`📊 Connection pool size: ${conn.connection.options.maxPoolSize}`);
-        console.log(`📊 Connection state: ${mongoose.connection.readyState}`);
+        retryCount = 0; // Muvaffaqiyatli ulanganda retry ni nolga qaytaramiz
         
-        // Настройка обработчиков
-        setupConnectionHandlers();
-        
-        // Инициализация БД
         await initDatabase();
         
-        // Запуск keep-alive
-        startKeepAlive();
+        // MongoDB ulanish hodisalarini kuzatish
+        mongoose.connection.on('connected', () => {
+            console.log('✅ MongoDB re-connected successfully');
+            retryCount = 0;
+        });
+        
+        mongoose.connection.on('disconnected', () => {
+            console.log('⚠️ MongoDB disconnected! Reconnecting...');
+            retryCount = 0;
+            setTimeout(() => {
+                connectDB();
+            }, 2000);
+        });
+        
+        mongoose.connection.on('error', (err) => {
+            console.error('❌ MongoDB error:', err.message);
+            if (err.message.includes('keepAlive')) {
+                console.log('⚠️ Ignoring keepAlive error, continuing...');
+                return;
+            }
+            setTimeout(() => {
+                console.log('🔄 Reconnecting to MongoDB...');
+                connectDB();
+            }, 3000);
+        });
         
         return conn;
     } catch (error) {
-        isConnecting = false;
+        retryCount++;
         console.error(`❌ MongoDB connection error: ${error.message}`);
         
-        if (connectionAttempts < MAX_RETRIES) {
-            const delay = Math.min(5000 * connectionAttempts, 30000);
-            console.log(`🔄 Retrying in ${delay/1000} seconds... (${connectionAttempts}/${MAX_RETRIES})`);
-            
-            return new Promise((resolve) => {
-                setTimeout(async () => {
-                    resolve(await connectDB());
-                }, delay);
-            });
+        // keepAlive xatosi bo'lsa, maxsus ishlov beramiz
+        if (error.message && error.message.includes('keepalive')) {
+            console.log('⚠️ keepAlive not supported, retrying without it...');
+            // keepAlive ni olib tashlab qayta urinish
+            try {
+                const conn = await mongoose.connect(process.env.MONGODB_URI, {
+                    serverSelectionTimeoutMS: 60000,
+                    socketTimeoutMS: 60000,
+                    connectTimeoutMS: 60000,
+                    maxPoolSize: 50,
+                    minPoolSize: 5,
+                    retryWrites: true,
+                    retryReads: true,
+                });
+                console.log('✅ MongoDB connected without keepAlive');
+                retryCount = 0;
+                await initDatabase();
+                return conn;
+            } catch (innerError) {
+                console.error('❌ Retry failed:', innerError.message);
+            }
+        }
+        
+        if (retryCount < MAX_RETRIES) {
+            const delay = Math.min(5000 * retryCount, 30000);
+            console.log(`🔄 Retrying connection in ${delay/1000} seconds... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+            setTimeout(() => {
+                connectDB();
+            }, delay);
         } else {
             console.error(`❌ Failed to connect after ${MAX_RETRIES} attempts`);
-            throw error;
+            if (process.env.NODE_ENV !== 'production') {
+                process.exit(1);
+            }
         }
     }
 };
-
-function setupConnectionHandlers() {
-    mongoose.connection.removeAllListeners();
-    
-    mongoose.connection.on('connected', () => {
-        console.log('✅ MongoDB re-connected successfully');
-        isConnecting = false;
-        connectionAttempts = 0;
-    });
-    
-    mongoose.connection.on('disconnected', () => {
-        console.log('⚠️ MongoDB disconnected!');
-    });
-    
-    mongoose.connection.on('error', (err) => {
-        console.error('❌ MongoDB error:', err.message);
-    });
-    
-    mongoose.connection.on('reconnectFailed', () => {
-        console.error('❌ MongoDB reconnect failed');
-        setTimeout(() => {
-            if (mongoose.connection.readyState === 0 && !isConnecting) {
-                connectDB().catch(() => {});
-            }
-        }, 10000);
-    });
-}
-
-function startKeepAlive() {
-    if (keepAliveInterval) {
-        clearInterval(keepAliveInterval);
-    }
-    
-    keepAliveInterval = setInterval(async () => {
-        try {
-            const state = mongoose.connection.readyState;
-            
-            if (state === 1) {
-                await mongoose.connection.db.admin().ping();
-                console.log('✅ MongoDB ping successful');
-            } else if (state === 0 && !isConnecting) {
-                console.log('⚠️ MongoDB disconnected, reconnecting...');
-                await connectDB();
-            }
-        } catch (error) {
-            console.error('⚠️ MongoDB keep-alive error:', error.message);
-        }
-    }, 30000);
-}
 
 const initDatabase = async () => {
     try {
@@ -138,48 +106,56 @@ const initDatabase = async () => {
         const collections = await db.listCollections().toArray();
         const collectionNames = collections.map(c => c.name);
         
-        // Создание индексов
+        // Indexes yaratish
         if (collectionNames.includes('users')) {
-            await mongoose.connection.collection('users').createIndex(
-                { login: 1 }, 
-                { unique: true, background: true }
-            );
-            await mongoose.connection.collection('users').createIndex(
-                { id: 1 }, 
-                { unique: true, background: true }
-            );
-            console.log('✅ Users indexes ready');
+            try {
+                await mongoose.connection.collection('users').createIndex(
+                    { login: 1 }, 
+                    { unique: true, background: true }
+                );
+                await mongoose.connection.collection('users').createIndex(
+                    { id: 1 }, 
+                    { unique: true, background: true }
+                );
+                console.log('✅ Users indexes ready');
+            } catch (err) {
+                console.log('⚠️ Users indexes error:', err.message);
+            }
         }
         
         if (collectionNames.includes('records')) {
-            await mongoose.connection.collection('records').createIndex(
-                { id: 1 }, 
-                { unique: true, background: true }
-            );
-            await mongoose.connection.collection('records').createIndex(
-                { date: 1 }, 
-                { background: true }
-            );
-            await mongoose.connection.collection('records').createIndex(
-                { userId: 1 }, 
-                { background: true }
-            );
-            await mongoose.connection.collection('records').createIndex(
-                { date: 1, userId: 1 }, 
-                { background: true }
-            );
-            console.log('✅ Records indexes ready');
+            try {
+                await mongoose.connection.collection('records').createIndex(
+                    { id: 1 }, 
+                    { unique: true, background: true }
+                );
+                await mongoose.connection.collection('records').createIndex(
+                    { date: 1 }, 
+                    { background: true }
+                );
+                await mongoose.connection.collection('records').createIndex(
+                    { userId: 1 }, 
+                    { background: true }
+                );
+                console.log('✅ Records indexes ready');
+            } catch (err) {
+                console.log('⚠️ Records indexes error:', err.message);
+            }
         }
         
         if (collectionNames.includes('chats')) {
-            await mongoose.connection.collection('chats').createIndex(
-                { time: 1 }, 
-                { background: true }
-            );
-            console.log('✅ Chat indexes ready');
+            try {
+                await mongoose.connection.collection('chats').createIndex(
+                    { time: 1 }, 
+                    { background: true }
+                );
+                console.log('✅ Chat indexes ready');
+            } catch (err) {
+                console.log('⚠️ Chat indexes error:', err.message);
+            }
         }
         
-        // ✅ ИСПРАВЛЕНО: Создание пользователей с хешированием через модель
+        // Default users
         const defaultUsers = [
             { id: 'admin', name: 'Admin', role: 'admin', login: 'admin', pass: '123' },
             { id: 'boss1', name: 'Boshliq Alisher', role: 'boss', login: 'boss', pass: '123' },
@@ -190,49 +166,48 @@ const initDatabase = async () => {
             try {
                 const existing = await User.findOne({ login: userData.login });
                 if (!existing) {
-                    // ✅ Используем модель User, которая автоматически хеширует пароль
-                    const user = new User({
-                        id: userData.id,
-                        name: userData.name,
-                        role: userData.role,
-                        login: userData.login,
-                        pass: userData.pass
-                    });
+                    const user = new User(userData);
                     await user.save();
                     console.log(`✅ Default user created: ${userData.login}`);
                 } else {
-                    console.log(`ℹ️ User ${userData.login} already exists`);
+                    console.log(`✅ User already exists: ${userData.login}`);
                 }
             } catch (err) {
-                console.log(`⚠️ Error creating user ${userData.login}:`, err.message);
+                console.log(`⚠️ User ${userData.login} error:`, err.message);
             }
         }
         
         console.log('✅ Database initialization complete');
+        
     } catch (error) {
         console.log('⚠️ Database init error:', error.message);
     }
 };
 
-// Обработка завершения
-process.on('SIGINT', async () => {
-    console.log('🛑 Shutting down...');
-    if (keepAliveInterval) {
-        clearInterval(keepAliveInterval);
-    }
-    await mongoose.connection.close();
-    console.log('MongoDB connection closed');
-    process.exit(0);
-});
-
-module.exports = {
-    connectDB,
-    getConnection: () => mongoose.connection,
-    isConnected: () => mongoose.connection.readyState === 1,
-    closeConnection: async () => {
-        if (keepAliveInterval) {
-            clearInterval(keepAliveInterval);
+// Keep-alive - har 3 daqiqada ping (MongoDB 6.x da ishlaydi)
+const keepAlive = () => {
+    setInterval(async () => {
+        try {
+            if (mongoose.connection.readyState === 1) {
+                await mongoose.connection.db.admin().ping();
+                console.log('✅ MongoDB ping successful');
+            } else {
+                console.log('⚠️ MongoDB not connected, reconnecting...');
+                retryCount = 0;
+                await connectDB();
+            }
+        } catch (error) {
+            if (error.message && error.message.includes('keepalive')) {
+                // keepAlive xatosini ignore qilamiz
+                return;
+            }
+            console.log('⚠️ MongoDB ping failed:', error.message);
+            retryCount = 0;
+            await connectDB();
         }
-        await mongoose.connection.close();
-    }
+    }, 180000); // 3 daqiqa
 };
+
+setTimeout(keepAlive, 5000);
+
+module.exports = connectDB;
