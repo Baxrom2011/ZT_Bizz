@@ -98,6 +98,13 @@ exports.register = async (req, res) => {
             });
         }
         
+        if (pass.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Parol kamida 6 belgi bo\'lishi kerak!'
+            });
+        }
+        
         // Check if user exists
         const existingUser = await User.findOne({ 
             $or: [{ login: login }, { id: id }] 
@@ -173,6 +180,12 @@ exports.updateUser = async (req, res) => {
         console.log('📝 Updates:', updates);
         
         if (updates.pass) {
+            if (updates.pass.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Parol kamida 6 belgi bo\'lishi kerak!'
+                });
+            }
             const salt = await bcrypt.genSalt(10);
             updates.pass = await bcrypt.hash(updates.pass, salt);
         }

@@ -69,9 +69,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files (frontend)
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend')));
-}
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // API Routes
 app.use('/api/auth', require('./src/routes/authRoutes'));
@@ -89,12 +87,10 @@ app.get('/api/ping', (req, res) => {
     });
 });
 
-// Serve frontend for all other routes (production)
-if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/index.html'));
-    });
-}
+// Serve frontend for all other routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 // 404 handler
 app.use((req, res) => {

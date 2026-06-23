@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const dataController = require('../controllers/dataController');
+const authController = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
 
-// All routes require authentication
-router.get('/all', auth, dataController.getAllData);
-router.post('/sync', auth, dataController.saveAllData);
-router.get('/records', auth, dataController.getRecordsByDate);
-router.get('/stats', auth, dataController.getMonthStats);
-router.post('/records', auth, dataController.createRecord);
-router.put('/records/:id', auth, dataController.updateRecord);
-router.delete('/records/:id', auth, dataController.deleteRecord);
+// Public routes (no auth needed)
+router.post('/login', authController.login);
+router.post('/register', authController.register);
+
+// Protected routes (auth needed)
+router.get('/users', auth, authController.getUsers);
+router.put('/users/:id', auth, authController.updateUser);
+router.delete('/users/:id', auth, authController.deleteUser);
 
 module.exports = router;
