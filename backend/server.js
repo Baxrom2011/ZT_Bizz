@@ -23,7 +23,7 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// ===== HELMET CSP sozlamalari =====
+// ===== CSP sozlamalari - BARCHA INLINE RUXSATLAR BILAN =====
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
@@ -31,10 +31,13 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             scriptSrc: [
                 "'self'",
-                "'unsafe-inline'", // Inline script uchun ruxsat
+                "'unsafe-inline'",
                 "'unsafe-eval'",
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com"
+            ],
+            scriptSrcAttr: [
+                "'unsafe-inline'"
             ],
             styleSrc: [
                 "'self'",
@@ -42,8 +45,11 @@ app.use(helmet({
                 "https://fonts.googleapis.com",
                 "https://cdnjs.cloudflare.com"
             ],
+            styleSrcAttr: [
+                "'unsafe-inline'"
+            ],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://*.onrender.com", "https://*.mongodb.net"],
+            connectSrc: ["'self'", "https:", "wss:"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
@@ -58,7 +64,7 @@ app.use(helmet({
 
 app.use(compression());
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
