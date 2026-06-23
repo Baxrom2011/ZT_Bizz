@@ -1,6 +1,5 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
 // Login
 exports.login = async (req, res) => {
@@ -20,8 +19,7 @@ exports.login = async (req, res) => {
         
         console.log('🔍 Finding user:', login);
         
-        // Find user by login
-        const user = await User.findOne({ login: login });
+        const user = await User.findOne({ login: login.toLowerCase() });
         if (!user) {
             console.log('❌ User not found:', login);
             return res.status(401).json({ 
@@ -33,7 +31,6 @@ exports.login = async (req, res) => {
         console.log('✅ User found:', user.name);
         console.log('🔑 Checking password...');
         
-        // Check password
         const isMatch = await user.comparePassword(pass);
         if (!isMatch) {
             console.log('❌ Password incorrect for:', login);
@@ -45,23 +42,24 @@ exports.login = async (req, res) => {
 
         console.log('✅ Password correct');
         
-        // Generate JWT token
-        const secret = process.env.JWT_SECRET || 'default_secret_key';
+        const secret = process.env.JWT_SECRET || 'default_secret_key_change_this';
         console.log('🔐 Using JWT secret:', secret.substring(0, 10) + '...');
         
+        // ✅ Убеждаемся, что в токене правильный ID пользователя
         const token = jwt.sign(
             { 
-                id: user.id, 
-                name: user.name, 
+                id: user.id,      // ✅ Используем user.id, а не _id
+                login: user.login, 
                 role: user.role,
-                login: user.login 
+                name: user.name
             },
             secret,
             { expiresIn: '7d' }
         );
 
         console.log('✅ Login successful for:', login);
-        console.log('🎫 Token generated:', token.substring(0, 20) + '...');
+        console.log('👤 User ID in token:', user.id);
+        console.log('🎫 Token generated:', token.substring(0, 30) + '...');
         
         res.json({
             success: true,
@@ -82,7 +80,7 @@ exports.login = async (req, res) => {
     }
 };
 
-// Register (for creating initial users)
+// Register
 exports.register = async (req, res) => {
     try {
         console.log('📥 Register request received');
@@ -105,9 +103,8 @@ exports.register = async (req, res) => {
             });
         }
         
-        // Check if user exists
         const existingUser = await User.findOne({ 
-            $or: [{ login: login }, { id: id }] 
+            $or: [{ login: login.toLowerCase() }, { id: id }] 
         });
         
         if (existingUser) {
@@ -122,7 +119,7 @@ exports.register = async (req, res) => {
             id: id || 'user_' + Date.now(), 
             name, 
             role: role || 'worker', 
-            login, 
+            login: login.toLowerCase(), 
             pass 
         });
         
@@ -147,7 +144,7 @@ exports.register = async (req, res) => {
     }
 };
 
-// Get all users (with auth)
+// Get all users
 exports.getUsers = async (req, res) => {
     try {
         console.log('📥 Get users request');
@@ -179,29 +176,26 @@ exports.updateUser = async (req, res) => {
         console.log('📥 Update user:', id);
         console.log('📝 Updates:', updates);
         
-        if (updates.pass) {
-            if (updates.pass.length < 6) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Parol kamida 6 belgi bo\'lishi kerak!'
-                });
-            }
-            const salt = await bcrypt.genSalt(10);
-            updates.pass = await bcrypt.hash(updates.pass, salt);
-        }
-
-        const user = await User.findOneAndUpdate(
-            { id: id },
-            updates,
-            { new: true }
-        );
-
+        // ✅ Если пароль передан, он будет захеширован через pre-save hook
+        // Но нам нужно найти пользователя и обновить
+        const user = await User.findOne({ id: id });
+        
         if (!user) {
             return res.status(404).json({ 
                 success: false, 
                 message: 'User not found' 
             });
         }
+        
+        // Обновляем поля
+        if (updates.login) user.login = updates.login.toLowerCase();
+        if (updates.name) user.name = updates.name;
+        if (updates.role) user.role = updates.role;
+        if (updates.pass) user.pass = updates.pass; // Это вызовет pre-save hook
+        
+        await user.save();
+        
+        console.log('✅ User updated:', user.login);
 
         res.json({ 
             success: true, 
@@ -243,6 +237,8 @@ exports.deleteUser = async (req, res) => {
                 message: 'User not found' 
             });
         }
+        
+        console.log('✅ User deleted:', id);
         
         res.json({ 
             success: true, 

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "clean": "node -e \"require('mongoose').connect(process.env.MONGODB_URI).then(() => { require('./src/models/User').deleteMany({}).then(() => console.log('Users cleared')).finally(() => process.exit()) })\""
   },
   "dependencies": {
     "express": "^4.18.2",

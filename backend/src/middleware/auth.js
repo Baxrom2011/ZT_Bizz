@@ -1,11 +1,10 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-exports.auth = (req, res, next) => {
+exports.auth = async (req, res, next) => {
     try {
         console.log('🔐 Auth middleware');
-        console.log('📋 Headers:', req.headers);
         
-        // Get token from header
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             console.log('❌ No authorization header');
@@ -33,16 +32,27 @@ exports.auth = (req, res, next) => {
             });
         }
 
-        console.log('🎫 Token received:', token.substring(0, 20) + '...');
+        console.log('🎫 Token received:', token.substring(0, 30) + '...');
 
-        // Verify token
-        const secret = process.env.JWT_SECRET || 'default_secret_key';
-        console.log('🔐 Using JWT secret:', secret.substring(0, 10) + '...');
+        const secret = process.env.JWT_SECRET || 'default_secret_key_change_this';
         
         try {
             const decoded = jwt.verify(token, secret);
             console.log('✅ Token verified for user:', decoded.login);
+            console.log('👤 User ID from token:', decoded.id);
+            
+            // ✅ Проверяем, что пользователь существует в БД
+            const user = await User.findOne({ id: decoded.id });
+            if (!user) {
+                console.log('❌ User not found in database:', decoded.id);
+                return res.status(401).json({ 
+                    success: false, 
+                    message: 'User not found' 
+                });
+            }
+            
             req.user = decoded;
+            req.userId = decoded.id;
             next();
         } catch (jwtError) {
             console.log('❌ JWT verification failed:', jwtError.message);

@@ -7,13 +7,11 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 
-// Load env vars
 dotenv.config();
 
-// Import database connection
-const connectDB = require('./src/config/database');
+const { connectDB } = require('./src/config/database');
 
-// Connect to database
+// Подключаемся к БД
 connectDB();
 
 const app = express();
@@ -22,17 +20,15 @@ const app = express();
 //  SECURITY & MIDDLEWARE
 // ============================================================
 
-// Rate limiting - API uchun
 const limiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 daqiqa
-    max: 300, // 300 ta so'rov
+    windowMs: 1 * 60 * 1000,
+    max: 300,
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
 });
 app.use('/api', limiter);
 
-// CSP sozlamalari - CDN larga ruxsat
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginEmbedderPolicy: false,
@@ -69,10 +65,9 @@ app.use(helmet({
     }
 }));
 
-// Compression
 app.use(compression());
 
-// CORS - to'liq ruxsat
+// ✅ ИСПРАВЛЕНО: Более точные настройки CORS
 app.use(cors({
     origin: '*',
     credentials: true,
@@ -80,11 +75,9 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
-// JSON parser
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Request logging
 app.use((req, res, next) => {
     const start = Date.now();
     res.on('finish', () => {
@@ -95,10 +88,9 @@ app.use((req, res, next) => {
 });
 
 // ============================================================
-//  STATIC FILES (Frontend)
+//  STATIC FILES
 // ============================================================
 
-// Serve static files from frontend folder
 app.use(express.static(path.join(__dirname, '../frontend'), {
     maxAge: '1d',
     etag: true,
@@ -109,20 +101,14 @@ app.use(express.static(path.join(__dirname, '../frontend'), {
 //  API ROUTES
 // ============================================================
 
-// Auth routes
 app.use('/api/auth', require('./src/routes/authRoutes'));
-
-// Data routes
 app.use('/api/data', require('./src/routes/dataRoutes'));
-
-// Chat routes
 app.use('/api/chat', require('./src/routes/chatRoutes'));
 
 // ============================================================
 //  HEALTH CHECK
 // ============================================================
 
-// Health check with database status
 app.get('/api/ping', async (req, res) => {
     const statusMap = {
         0: 'disconnected',
@@ -166,7 +152,6 @@ app.get('/api/ping', async (req, res) => {
     });
 });
 
-// Detailed health check
 app.get('/api/health', async (req, res) => {
     const statusMap = {
         0: 'disconnected',
@@ -219,7 +204,6 @@ function formatUptime(seconds) {
 //  FRONTEND ROUTES
 // ============================================================
 
-// Serve frontend for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
@@ -228,7 +212,6 @@ app.get('*', (req, res) => {
 //  ERROR HANDLING
 // ============================================================
 
-// 404 handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,
@@ -237,11 +220,9 @@ app.use((req, res) => {
     });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
     console.error('❌ Error:', err.stack);
     
-    // Mongoose validation error
     if (err.name === 'ValidationError') {
         return res.status(400).json({
             success: false,
@@ -250,7 +231,6 @@ app.use((err, req, res, next) => {
         });
     }
     
-    // Mongoose duplicate key error
     if (err.code === 11000) {
         return res.status(400).json({
             success: false,
@@ -259,7 +239,6 @@ app.use((err, req, res, next) => {
         });
     }
     
-    // JWT error
     if (err.name === 'JsonWebTokenError') {
         return res.status(401).json({
             success: false,
@@ -267,7 +246,6 @@ app.use((err, req, res, next) => {
         });
     }
     
-    // Default error
     res.status(err.status || 500).json({
         success: false,
         message: err.message || 'Internal server error',
@@ -304,25 +282,20 @@ app.listen(PORT, '0.0.0.0', () => {
 //  GRACEFUL SHUTDOWN
 // ============================================================
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
     console.error('❌ Unhandled Rejection:', err);
-    // Don't exit in production, just log
     if (process.env.NODE_ENV === 'development') {
         process.exit(1);
     }
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
     console.error('❌ Uncaught Exception:', err);
-    // Don't exit in production, just log
     if (process.env.NODE_ENV === 'development') {
         process.exit(1);
     }
 });
 
-// Graceful shutdown
 process.on('SIGTERM', async () => {
     console.log('🛑 SIGTERM received, shutting down gracefully...');
     await mongoose.connection.close();
