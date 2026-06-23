@@ -41,11 +41,7 @@
         }
 
         /* ===== RESET & BASE ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -72,45 +68,18 @@
         }
 
         /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-input);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-hover);
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-input); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
 
         /* ===== ANIMATIONS ===== */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
 
-        .animate-fade {
-            animation: fadeIn 0.4s ease-out;
-        }
-        .animate-slide {
-            animation: slideIn 0.3s ease-out;
-        }
+        .animate-fade { animation: fadeIn 0.4s ease-out; }
 
         /* ===== HEADER ===== */
         .header {
@@ -168,63 +137,25 @@
             color: var(--text-primary);
             border: 1px solid var(--border-color);
         }
+        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .btn:active { transform: scale(0.95); }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-        }
-        .btn:active {
-            transform: scale(0.95);
-        }
+        .btn-primary { background: var(--accent); color: white; border: none; }
+        .btn-primary:hover { background: var(--accent-hover); }
 
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            border: none;
-        }
-        .btn-primary:hover {
-            background: var(--accent-hover);
-        }
+        .btn-success { background: var(--success); color: white; border: none; }
+        .btn-success:hover { background: #00a381; }
 
-        .btn-success {
-            background: var(--success);
-            color: white;
-            border: none;
-        }
-        .btn-success:hover {
-            background: #00a381;
-        }
+        .btn-danger { background: var(--danger); color: white; border: none; }
+        .btn-danger:hover { background: #d63031; }
 
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            border: none;
-        }
-        .btn-danger:hover {
-            background: #d63031;
-        }
+        .btn-warning { background: var(--warning); color: #2d3436; border: none; }
+        .btn-warning:hover { background: #fdcb6e; }
 
-        .btn-warning {
-            background: var(--warning);
-            color: #2d3436;
-            border: none;
-        }
-        .btn-warning:hover {
-            background: #fdcb6e;
-        }
+        .btn-ghost { background: transparent; border: 1px solid var(--border-color); }
+        .btn-ghost:hover { background: var(--bg-input); }
 
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid var(--border-color);
-        }
-        .btn-ghost:hover {
-            background: var(--bg-input);
-        }
-
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-        }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
 
         /* ===== THEME TOGGLE ===== */
         .theme-toggle {
@@ -250,12 +181,8 @@
             transition: var(--transition);
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .theme-toggle.active {
-            background: var(--accent);
-        }
-        .theme-toggle.active::after {
-            left: 29px;
-        }
+        .theme-toggle.active { background: var(--accent); }
+        .theme-toggle.active::after { left: 29px; }
         .theme-toggle .icon {
             position: absolute;
             top: 50%;
@@ -264,14 +191,8 @@
             z-index: 1;
             pointer-events: none;
         }
-        .theme-toggle .icon-sun {
-            left: 6px;
-            color: #fdcb6e;
-        }
-        .theme-toggle .icon-moon {
-            right: 6px;
-            color: #74b9ff;
-        }
+        .theme-toggle .icon-sun { left: 6px; color: #fdcb6e; }
+        .theme-toggle .icon-moon { right: 6px; color: #74b9ff; }
 
         /* ===== LOGIN ===== */
         .login-box {
@@ -284,30 +205,17 @@
             border: 1px solid var(--border-color);
             animation: fadeIn 0.5s ease-out;
         }
-
-        .login-box h2 {
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 28px;
-        }
+        .login-box h2 { text-align: center; margin-bottom: 8px; font-size: 28px; }
         .login-box .subtitle {
             text-align: center;
             color: var(--text-muted);
             margin-bottom: 24px;
             font-size: 14px;
         }
-        .login-box .logo-login {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .login-box .logo-login img {
-            height: 60px;
-            width: auto;
-        }
+        .login-box .logo-login { text-align: center; margin-bottom: 20px; }
+        .login-box .logo-login img { height: 60px; width: auto; }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .form-group { margin-bottom: 18px; }
         .form-group label {
             display: block;
             font-weight: 600;
@@ -315,8 +223,7 @@
             font-size: 14px;
             color: var(--text-secondary);
         }
-        .form-group input,
-        .form-group select {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid var(--border-color);
@@ -326,21 +233,15 @@
             background: var(--bg-input);
             color: var(--text-primary);
         }
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
         }
 
         /* ===== PANELS ===== */
-        .panel {
-            display: none;
-            animation: fadeIn 0.4s ease-out;
-        }
-        .panel.active {
-            display: block;
-        }
+        .panel { display: none; animation: fadeIn 0.4s ease-out; }
+        .panel.active { display: block; }
 
         /* ===== STATS ===== */
         .stats-grid {
@@ -359,10 +260,7 @@
             position: relative;
             overflow: hidden;
         }
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
-        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
         .stat-card .label {
             font-size: 13px;
             color: var(--text-muted);
@@ -380,6 +278,8 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        .stat-card .value.green { background: linear-gradient(135deg, var(--success), #00a381); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card .value.red { background: linear-gradient(135deg, var(--danger), #d63031); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .stat-card .icon-bg {
             position: absolute;
             right: -10px;
@@ -397,9 +297,7 @@
             margin-bottom: 20px;
             transition: var(--transition);
         }
-        .card:hover {
-            box-shadow: var(--shadow-hover);
-        }
+        .card:hover { box-shadow: var(--shadow-hover); }
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -417,9 +315,7 @@
         }
 
         /* ===== TABLE ===== */
-        .table-wrapper {
-            overflow-x: auto;
-        }
+        .table-wrapper { overflow-x: auto; }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -433,13 +329,8 @@
             color: var(--text-secondary);
             border-bottom: 2px solid var(--border-color);
         }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        tr:hover td {
-            background: var(--bg-input);
-        }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        tr:hover td { background: var(--bg-input); }
 
         .badge {
             display: inline-block;
@@ -472,9 +363,7 @@
             padding: 20px;
             animation: fadeIn 0.3s ease-out;
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal-content {
             background: var(--bg-secondary);
@@ -488,14 +377,8 @@
             max-height: 90vh;
             overflow-y: auto;
         }
-        .modal-content h3 {
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
-        .modal-content .modal-desc {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
+        .modal-content h3 { font-size: 22px; margin-bottom: 8px; }
+        .modal-content .modal-desc { color: var(--text-muted); margin-bottom: 20px; }
         .modal-actions {
             display: flex;
             gap: 12px;
@@ -522,10 +405,7 @@
             max-width: 80%;
             border: 1px solid var(--border-color);
         }
-        .chat-message .sender {
-            font-weight: 600;
-            color: var(--accent);
-        }
+        .chat-message .sender { font-weight: 600; color: var(--accent); }
         .chat-message .time {
             font-size: 11px;
             color: var(--text-muted);
@@ -597,36 +477,96 @@
             padding: 14px 16px;
             transition: var(--transition);
         }
-        .record-card:hover {
-            box-shadow: var(--shadow-hover);
-        }
+        .record-card:hover { box-shadow: var(--shadow-hover); }
         .record-card .rc-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 6px;
         }
-        .record-card .rc-type {
-            font-weight: 600;
-        }
-        .record-card .rc-amount {
-            font-size: 18px;
-            font-weight: 700;
-        }
+        .record-card .rc-type { font-weight: 600; }
+        .record-card .rc-amount { font-size: 18px; font-weight: 700; }
         .record-card .rc-desc {
             color: var(--text-muted);
             font-size: 13px;
             margin: 4px 0;
         }
-        .record-card .rc-status {
-            font-size: 12px;
-        }
+        .record-card .rc-status { font-size: 12px; }
         .record-card .rc-actions {
             display: flex;
             gap: 6px;
             margin-top: 8px;
             flex-wrap: wrap;
         }
+
+        /* ===== YEAR / MONTH SELECTOR ===== */
+        .year-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .year-btn {
+            padding: 5px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .year-btn:hover, .year-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        .month-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0 16px 0;
+        }
+        .month-pill {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .month-pill:hover, .month-pill.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        /* ===== DAY STATS ===== */
+        .day-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+            padding: 16px;
+            background: var(--bg-input);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+        .day-stat-item .ds-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .day-stat-item .ds-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .day-stat-item .ds-value.green { color: var(--success); }
+        .day-stat-item .ds-value.red { color: var(--danger); }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -635,25 +575,17 @@
             .modal-content { padding: 24px; margin: 16px; }
             .header { flex-direction: column; align-items: stretch; }
             .header-controls { justify-content: flex-start; }
-
-            /* Hide table, show cards */
             .table-wrapper { display: none; }
             .record-cards { display: flex; }
         }
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
             .login-box { padding: 24px; margin: 20px auto; }
+            .day-stats { grid-template-columns: 1fr 1fr; }
         }
 
-        .hidden {
-            display: none !important;
-        }
-        .flex {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
+        .hidden { display: none !important; }
+        .flex { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .flex-1 { flex: 1; }
         .gap-8 { gap: 8px; }
         .text-center { text-align: center; }
@@ -709,17 +641,17 @@
         <div class="stats-grid" id="adminStats">
             <div class="stat-card">
                 <div class="label">💰 Bu oygi foyda</div>
-                <div class="value" id="adminMonthProfit">0</div>
+                <div class="value green" id="adminMonthProfit">0</div>
                 <div class="icon-bg">📈</div>
             </div>
             <div class="stat-card">
                 <div class="label">📈 Umumiy topilgan</div>
-                <div class="value" id="adminMonthIncome">0</div>
+                <div class="value green" id="adminMonthIncome">0</div>
                 <div class="icon-bg">💵</div>
             </div>
             <div class="stat-card">
                 <div class="label">📉 Umumiy rasxod</div>
-                <div class="value" id="adminMonthExpense">0</div>
+                <div class="value red" id="adminMonthExpense">0</div>
                 <div class="icon-bg">💸</div>
             </div>
             <div class="stat-card">
@@ -733,13 +665,15 @@
             <div class="card-header">
                 <div class="card-title">📅 Hisobot</div>
                 <div class="flex gap-8">
-                    <input type="month" id="adminMonthPicker" onchange="adminLoadMonth()">
-                    <button class="btn btn-primary" onclick="adminLoadMonth()">Ko'rish</button>
                     <button class="btn btn-success" onclick="adminShowAddRecord()">➕ Yozuv</button>
                     <button class="btn btn-warning" onclick="adminShowSettings()">⚙️</button>
                     <button class="btn btn-danger" onclick="logout()">🚪</button>
                 </div>
             </div>
+
+            <!-- Year / Month Selector -->
+            <div class="year-selector" id="adminYearSelector"></div>
+            <div class="month-grid" id="adminMonthGrid"></div>
 
             <!-- Filters -->
             <div class="filter-group">
@@ -748,6 +682,22 @@
                 <button class="btn btn-sm btn-ghost" onclick="adminClearDayFilter()">❌ Tozalash</button>
                 <label>🔍 Izoh:</label>
                 <input type="text" id="adminDescFilter" placeholder="Qidirish..." oninput="adminApplyFilters()">
+            </div>
+
+            <!-- Day Stats (shows when day filter is active) -->
+            <div id="adminDayStats" class="day-stats hidden">
+                <div class="day-stat-item">
+                    <div class="ds-label">📈 Kunlik kirim</div>
+                    <div class="ds-value green" id="adminDayIncome">0</div>
+                </div>
+                <div class="day-stat-item">
+                    <div class="ds-label">📉 Kunlik chiqim</div>
+                    <div class="ds-value red" id="adminDayExpense">0</div>
+                </div>
+                <div class="day-stat-item">
+                    <div class="ds-label">💰 Kunlik foyda</div>
+                    <div class="ds-value" id="adminDayProfit">0</div>
+                </div>
             </div>
 
             <div id="adminRecordList">
@@ -759,7 +709,10 @@
 
         <!-- Admin Settings -->
         <div id="adminSettings" class="hidden card">
-            <h3 style="margin-bottom:16px;">⚙️ Sozlamalar</h3>
+            <div class="card-header">
+                <div class="card-title">⚙️ Sozlamalar</div>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('adminSettings').classList.add('hidden')">✕ Yopish</button>
+            </div>
             <div class="form-group">
                 <label>Yangi Admin Login</label>
                 <input type="text" id="newAdminLogin" placeholder="Yangi login" value="admin">
@@ -774,6 +727,7 @@
             <div class="form-group">
                 <label>Rol</label>
                 <select id="newUserRole">
+                    <option value="admin">👑 Admin</option>
                     <option value="boss">👔 Boshliq</option>
                     <option value="worker">👷 Ishchi</option>
                 </select>
@@ -791,7 +745,6 @@
                 <input type="password" id="newUserPass" placeholder="Parol (min 6 belgi)">
             </div>
             <button class="btn btn-success" onclick="addUser()">➕ Qo'shish</button>
-            <button class="btn btn-ghost" onclick="document.getElementById('adminSettings').classList.add('hidden')">Yopish</button>
         </div>
 
         <!-- Chat -->
@@ -813,17 +766,17 @@
         <div class="stats-grid" id="userStats">
             <div class="stat-card">
                 <div class="label">💰 Bu oygi foyda</div>
-                <div class="value" id="userMonthProfit">0</div>
+                <div class="value green" id="userMonthProfit">0</div>
                 <div class="icon-bg">📈</div>
             </div>
             <div class="stat-card">
                 <div class="label">📈 Umumiy topilgan</div>
-                <div class="value" id="userMonthIncome">0</div>
+                <div class="value green" id="userMonthIncome">0</div>
                 <div class="icon-bg">💵</div>
             </div>
             <div class="stat-card">
                 <div class="label">📉 Umumiy rasxod</div>
-                <div class="value" id="userMonthExpense">0</div>
+                <div class="value red" id="userMonthExpense">0</div>
                 <div class="icon-bg">💸</div>
             </div>
         </div>
@@ -832,13 +785,15 @@
             <div class="card-header">
                 <div class="card-title">📅 Hisobot</div>
                 <div class="flex gap-8">
-                    <input type="month" id="userMonthPicker" onchange="userLoadMonth()">
-                    <button class="btn btn-primary" onclick="userLoadMonth()">Ko'rish</button>
                     <button class="btn btn-success" onclick="userShowAddRecord()">➕ Yozuv</button>
                     <button class="btn btn-warning" onclick="userShowSettings()">⚙️</button>
                     <button class="btn btn-danger" onclick="logout()">🚪</button>
                 </div>
             </div>
+
+            <!-- Year / Month Selector -->
+            <div class="year-selector" id="userYearSelector"></div>
+            <div class="month-grid" id="userMonthGrid"></div>
 
             <!-- Filters -->
             <div class="filter-group">
@@ -847,6 +802,22 @@
                 <button class="btn btn-sm btn-ghost" onclick="userClearDayFilter()">❌ Tozalash</button>
                 <label>🔍 Izoh:</label>
                 <input type="text" id="userDescFilter" placeholder="Qidirish..." oninput="userApplyFilters()">
+            </div>
+
+            <!-- Day Stats -->
+            <div id="userDayStats" class="day-stats hidden">
+                <div class="day-stat-item">
+                    <div class="ds-label">📈 Kunlik kirim</div>
+                    <div class="ds-value green" id="userDayIncome">0</div>
+                </div>
+                <div class="day-stat-item">
+                    <div class="ds-label">📉 Kunlik chiqim</div>
+                    <div class="ds-value red" id="userDayExpense">0</div>
+                </div>
+                <div class="day-stat-item">
+                    <div class="ds-label">💰 Kunlik foyda</div>
+                    <div class="ds-value" id="userDayProfit">0</div>
+                </div>
             </div>
 
             <div id="userRecordList">
@@ -858,7 +829,10 @@
 
         <!-- User Settings -->
         <div id="userSettings" class="hidden card">
-            <h3 style="margin-bottom:16px;">🔑 Login/Parolni o'zgartirish</h3>
+            <div class="card-header">
+                <div class="card-title">🔑 Login/Parolni o'zgartirish</div>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('userSettings').classList.add('hidden')">✕ Yopish</button>
+            </div>
             <div class="form-group">
                 <label>Yangi Login</label>
                 <input type="text" id="userNewLogin" placeholder="Yangi login">
@@ -868,7 +842,6 @@
                 <input type="password" id="userNewPass" placeholder="Yangi parol (min 6)">
             </div>
             <button class="btn btn-primary" onclick="changeUserCreds()">Saqlash</button>
-            <button class="btn btn-ghost" onclick="document.getElementById('userSettings').classList.add('hidden')">Yopish</button>
         </div>
 
         <!-- Chat -->
@@ -910,12 +883,10 @@ console.log('API_URL:', API_URL);
 
 var authToken = localStorage.getItem('authToken') || '';
 var currentUser = null;
-var appData = {
-    users: [],
-    records: [],
-    chat: []
-};
+var appData = { users: [], records: [], chat: [] };
 var modalCallback = null;
+var selectedYear = new Date().getFullYear();
+var selectedMonth = new Date().getMonth() + 1;
 
 // ============================================================
 //  THEME
@@ -928,7 +899,6 @@ function toggleTheme() {
     document.getElementById('themeToggle').classList.toggle('active');
     localStorage.setItem('theme', next);
     
-    // Logotipni yangilash
     var logoImg = document.querySelector('.logo img');
     if (logoImg) {
         logoImg.src = next === 'dark' ? '/logo-white.png' : '/logo-black.png';
@@ -942,9 +912,7 @@ function loadTheme() {
         if (saved === 'dark') {
             document.getElementById('themeToggle').classList.add('active');
             var logoImg = document.querySelector('.logo img');
-            if (logoImg) {
-                logoImg.src = '/logo-white.png';
-            }
+            if (logoImg) logoImg.src = '/logo-white.png';
         }
     }
 }
@@ -984,9 +952,7 @@ function showAlert(message, type) {
 }
 
 function showPrompt(title, desc, defaultValue, callback) {
-    var html = '<div class="form-group">' +
-        '<input type="text" id="promptInput" value="' + (defaultValue || '') + '" placeholder="Ma\'lumot kiriting...">' +
-        '</div>';
+    var html = '<div class="form-group"><input type="text" id="promptInput" value="' + (defaultValue || '') + '" placeholder="Ma\'lumot kiriting..."></div>';
     showModal(title, desc, html, 'Saqlash', function() {
         var val = document.getElementById('promptInput').value;
         if (callback) callback(val);
@@ -1005,28 +971,24 @@ function getToday() {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-function getMonthStart() {
-    var d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01';
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function getMonthStr(year, month) {
+    return year + '-' + pad(month);
 }
 
-function isSameMonth(dateStr) {
-    var d = new Date(dateStr);
-    var now = new Date();
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+function getMonthName(m) {
+    var names = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'];
+    return names[m - 1];
 }
 
-function getRecordsForDate(date) {
-    return appData.records.filter(function(r) { return r.date === date; });
-}
-
-function getRecordsForMonth(monthStr) {
-    if (!monthStr) monthStr = getToday().substring(0, 7);
+function getRecordsForMonth(year, month) {
+    var monthStr = getMonthStr(year, month);
     return appData.records.filter(function(r) { return r.date && r.date.startsWith(monthStr); });
 }
 
-function getMonthStats(monthStr) {
-    var recs = getRecordsForMonth(monthStr);
+function getMonthStats(year, month) {
+    var recs = getRecordsForMonth(year, month);
     var income = 0, expense = 0;
     recs.forEach(function(r) {
         if (r.status === 'approved') {
@@ -1037,8 +999,18 @@ function getMonthStats(monthStr) {
     return { income: income, expense: expense, profit: income - expense };
 }
 
+function getDayStats(date) {
+    var recs = appData.records.filter(function(r) { return r.date === date && r.status === 'approved'; });
+    var income = 0, expense = 0;
+    recs.forEach(function(r) {
+        if (r.type === 'income') income += r.amount;
+        else expense += r.amount;
+    });
+    return { income: income, expense: expense, profit: income - expense };
+}
+
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS' }).format(amount);
+    return new Intl.NumberFormat('uz-UZ', { maximumFractionDigits: 0 }).format(amount) + ' so\'m';
 }
 
 // ============================================================
@@ -1046,25 +1018,13 @@ function formatCurrency(amount) {
 // ============================================================
 function apiCall(endpoint, method, body) {
     method = method || 'GET';
-    var headers = {
-        'Content-Type': 'application/json'
-    };
-    if (authToken) {
-        headers['Authorization'] = 'Bearer ' + authToken;
-    }
-    var options = {
-        method: method,
-        headers: headers
-    };
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var options = { method: method, headers: headers };
+    if (body) options.body = JSON.stringify(body);
     return fetch(API_URL + endpoint, options)
         .then(function(response) { return response.json(); })
-        .catch(function(error) {
-            console.error('API Error:', error);
-            throw error;
-        });
+        .catch(function(error) { console.error('API Error:', error); throw error; });
 }
 
 function checkConnection() {
@@ -1097,7 +1057,7 @@ function renderChat(containerId, messages) {
             '<br>' + m.text +
             '</div>';
     });
-    el.innerHTML = html;
+    el.innerHTML = html || '<div class="text-muted text-center" style="padding:20px;">Xabarlar yo\'q</div>';
     el.scrollTop = el.scrollHeight;
 }
 
@@ -1114,13 +1074,10 @@ function login() {
                 showAlert(result.message, 'error');
                 return;
             }
-            
             authToken = result.token;
             localStorage.setItem('authToken', authToken);
             currentUser = result.user;
-            
             document.getElementById('loginSection').style.display = 'none';
-            
             return loadAllData();
         })
         .then(function() {
@@ -1166,62 +1123,110 @@ function loadAllData() {
         .catch(function() {
             var local = localStorage.getItem('appData');
             if (local) {
-                try {
-                    var parsed = JSON.parse(local);
-                    appData.users = parsed.users || [];
-                    appData.records = parsed.records || [];
-                    appData.chat = parsed.chat || [];
-                } catch(e) {}
+                try { var parsed = JSON.parse(local); appData = parsed; } catch(e) {}
             }
         });
 }
 
-function saveData() {
-    localStorage.setItem('appData', JSON.stringify(appData));
-    return apiCall('/data/sync', 'POST', appData)
-        .catch(function(error) {
-            console.error('Sync error:', error);
-        });
+// ============================================================
+//  YEAR / MONTH SELECTOR
+// ============================================================
+function renderYearSelector(containerId, onYearChange) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var years = [];
+    var currentYear = new Date().getFullYear();
+    for (var y = currentYear - 1; y <= currentYear + 1; y++) {
+        years.push(y);
+    }
+    var html = '';
+    years.forEach(function(y) {
+        var active = y === selectedYear ? ' active' : '';
+        html += '<button class="year-btn' + active + '" onclick="selectYear(' + y + ', \'' + containerId + '\')">' + y + '</button>';
+    });
+    container.innerHTML = html;
+}
+
+function selectYear(year, containerId) {
+    selectedYear = year;
+    renderYearSelector(containerId, null);
+    var gridId = containerId.replace('YearSelector', 'MonthGrid');
+    renderMonthGrid(gridId);
+    if (currentUser && currentUser.role === 'admin') {
+        adminApplyFilters();
+    } else {
+        userApplyFilters();
+    }
+}
+
+function renderMonthGrid(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var html = '';
+    for (var m = 1; m <= 12; m++) {
+        var active = m === selectedMonth ? ' active' : '';
+        var monthName = getMonthName(m);
+        html += '<button class="month-pill' + active + '" onclick="selectMonth(' + m + ', \'' + containerId + '\')">' + monthName + '</button>';
+    }
+    container.innerHTML = html;
+}
+
+function selectMonth(month, containerId) {
+    selectedMonth = month;
+    var gridId = containerId;
+    renderMonthGrid(gridId);
+    if (currentUser && currentUser.role === 'admin') {
+        adminApplyFilters();
+    } else {
+        userApplyFilters();
+    }
 }
 
 // ============================================================
 //  ADMIN PANEL
 // ============================================================
 function adminLoadDashboard() {
-    var month = document.getElementById('adminMonthPicker').value;
-    if (!month) {
-        var d = new Date();
-        month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        document.getElementById('adminMonthPicker').value = month;
-    }
-    adminLoadMonth();
-}
-
-function adminLoadMonth() {
-    var month = document.getElementById('adminMonthPicker').value;
-    if (!month) return;
-    var stats = getMonthStats(month);
-    document.getElementById('adminMonthProfit').textContent = formatCurrency(stats.profit);
-    document.getElementById('adminMonthIncome').textContent = formatCurrency(stats.income);
-    document.getElementById('adminMonthExpense').textContent = formatCurrency(stats.expense);
-    document.getElementById('adminMonthNet').textContent = formatCurrency(stats.profit);
+    renderYearSelector('adminYearSelector');
+    renderMonthGrid('adminMonthGrid');
     renderChat('adminChat', appData.chat);
     adminApplyFilters();
 }
 
 function adminApplyFilters() {
-    var month = document.getElementById('adminMonthPicker').value;
-    if (!month) return;
+    var monthStr = getMonthStr(selectedYear, selectedMonth);
     var day = document.getElementById('adminDayFilter').value;
     var desc = document.getElementById('adminDescFilter').value.trim().toLowerCase();
 
-    var recs = getRecordsForMonth(month);
+    var recs = getRecordsForMonth(selectedYear, selectedMonth);
+    var dayFilterActive = false;
+    
     if (day) {
+        dayFilterActive = true;
         recs = recs.filter(function(r) { return r.date === day; });
+        // Show day stats
+        var dayStats = getDayStats(day);
+        document.getElementById('adminDayIncome').textContent = formatCurrency(dayStats.income);
+        document.getElementById('adminDayExpense').textContent = formatCurrency(dayStats.expense);
+        var profitEl = document.getElementById('adminDayProfit');
+        profitEl.textContent = formatCurrency(dayStats.profit);
+        profitEl.style.color = dayStats.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('adminDayStats').classList.remove('hidden');
+    } else {
+        document.getElementById('adminDayStats').classList.add('hidden');
     }
+
     if (desc) {
         recs = recs.filter(function(r) { return (r.desc || '').toLowerCase().includes(desc); });
     }
+
+    // Update stats
+    var stats = getMonthStats(selectedYear, selectedMonth);
+    document.getElementById('adminMonthIncome').textContent = formatCurrency(stats.income);
+    document.getElementById('adminMonthExpense').textContent = formatCurrency(stats.expense);
+    var profitEl2 = document.getElementById('adminMonthProfit');
+    profitEl2.textContent = formatCurrency(stats.profit);
+    profitEl2.className = 'value ' + (stats.profit >= 0 ? 'green' : 'red');
+    document.getElementById('adminMonthNet').textContent = formatCurrency(stats.profit);
 
     // Render table
     var container = document.getElementById('adminRecordList');
@@ -1293,41 +1298,23 @@ function adminClearDayFilter() {
 function adminApproveRecord(id) {
     apiCall('/data/records/' + id, 'PUT', { status: 'approved' })
         .then(function() { return loadAllData(); })
-        .then(function() {
-            adminApplyFilters();
-            adminLoadMonth();
-            showAlert('Yozuv tasdiqlandi!', 'success');
-        })
-        .catch(function() {
-            showAlert('Xatolik yuz berdi!', 'error');
-        });
+        .then(function() { adminApplyFilters(); showAlert('Yozuv tasdiqlandi!', 'success'); })
+        .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
 }
 
 function adminRejectRecord(id) {
     apiCall('/data/records/' + id, 'PUT', { status: 'rejected' })
         .then(function() { return loadAllData(); })
-        .then(function() {
-            adminApplyFilters();
-            adminLoadMonth();
-            showAlert('Yozuv rad etildi!', 'warning');
-        })
-        .catch(function() {
-            showAlert('Xatolik yuz berdi!', 'error');
-        });
+        .then(function() { adminApplyFilters(); showAlert('Yozuv rad etildi!', 'warning'); })
+        .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
 }
 
 function adminDeleteRecord(id) {
     showConfirm('O‘chirish', 'Bu yozuvni o‘chirmoqchimisiz?', function() {
         apiCall('/data/records/' + id, 'DELETE')
             .then(function() { return loadAllData(); })
-            .then(function() {
-                adminApplyFilters();
-                adminLoadMonth();
-                showAlert('Yozuv o‘chirildi!', 'success');
-            })
-            .catch(function() {
-                showAlert('Xatolik yuz berdi!', 'error');
-            });
+            .then(function() { adminApplyFilters(); showAlert('Yozuv o‘chirildi!', 'success'); })
+            .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
     });
 }
 
@@ -1338,14 +1325,8 @@ function adminEditRecord(id) {
         if (val && !isNaN(val)) {
             apiCall('/data/records/' + id, 'PUT', { amount: parseFloat(val) })
                 .then(function() { return loadAllData(); })
-                .then(function() {
-                    adminApplyFilters();
-                    adminLoadMonth();
-                    showAlert('Yozuv yangilandi!', 'success');
-                })
-                .catch(function() {
-                    showAlert('Xatolik yuz berdi!', 'error');
-                });
+                .then(function() { adminApplyFilters(); showAlert('Yozuv yangilandi!', 'success'); })
+                .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
         }
     });
 }
@@ -1392,14 +1373,8 @@ function adminShowAddRecord() {
         };
         apiCall('/data/records', 'POST', newRec)
             .then(function() { return loadAllData(); })
-            .then(function() {
-                adminApplyFilters();
-                adminLoadMonth();
-                showAlert('Yozuv qo‘shildi!', 'success');
-            })
-            .catch(function() {
-                showAlert('Xatolik yuz berdi!', 'error');
-            });
+            .then(function() { adminApplyFilters(); showAlert('Yozuv qo‘shildi!', 'success'); })
+            .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
     });
 }
 
@@ -1416,12 +1391,8 @@ function changeAdminCreds() {
     if (admin) {
         apiCall('/auth/users/' + admin.id, 'PUT', { login: login, pass: pass })
             .then(function() { return loadAllData(); })
-            .then(function() {
-                showAlert('Admin maʼlumotlari yangilandi!', 'success');
-            })
-            .catch(function() {
-                showAlert('Xatolik yuz berdi!', 'error');
-            });
+            .then(function() { showAlert('Admin maʼlumotlari yangilandi!', 'success'); })
+            .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
     }
 }
 
@@ -1455,10 +1426,9 @@ function addUser() {
         document.getElementById('newUserName').value = '';
         document.getElementById('newUserLogin').value = '';
         document.getElementById('newUserPass').value = '';
+        adminApplyFilters();
     })
-    .catch(function() {
-        showAlert('Xatolik yuz berdi!', 'error');
-    });
+    .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
 }
 
 function adminSendChat() {
@@ -1466,31 +1436,17 @@ function adminSendChat() {
     var text = input.value.trim();
     if (!text) return;
     apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() })
-        .then(function() {
-            input.value = '';
-            return loadAllData();
-        })
-        .then(function() {
-            renderChat('adminChat', appData.chat);
-            renderChat('userChat', appData.chat);
-        })
-        .catch(function() {
-            showAlert('Xatolik yuz berdi!', 'error');
-        });
+        .then(function() { input.value = ''; return loadAllData(); })
+        .then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); })
+        .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
 }
 
 function adminClearChat() {
     showConfirm('Chatni tozalash', 'Barcha xabarlar o‘chiriladi. Davom etilsinmi?', function() {
         apiCall('/chat/clear/all', 'DELETE')
             .then(function() { return loadAllData(); })
-            .then(function() {
-                renderChat('adminChat', appData.chat);
-                renderChat('userChat', appData.chat);
-                showAlert('Chat tozalandi!', 'success');
-            })
-            .catch(function() {
-                showAlert('Xatolik yuz berdi!', 'error');
-            });
+            .then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); showAlert('Chat tozalandi!', 'success'); })
+            .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
     });
 }
 
@@ -1498,43 +1454,49 @@ function adminClearChat() {
 //  USER PANEL
 // ============================================================
 function userLoadDashboard() {
-    var month = document.getElementById('userMonthPicker').value;
-    if (!month) {
-        var d = new Date();
-        month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        document.getElementById('userMonthPicker').value = month;
-    }
-    userLoadMonth();
-}
-
-function userLoadMonth() {
-    var month = document.getElementById('userMonthPicker').value;
-    if (!month) return;
-    var stats = getMonthStats(month);
-    document.getElementById('userMonthProfit').textContent = formatCurrency(stats.profit);
-    document.getElementById('userMonthIncome').textContent = formatCurrency(stats.income);
-    document.getElementById('userMonthExpense').textContent = formatCurrency(stats.expense);
+    renderYearSelector('userYearSelector');
+    renderMonthGrid('userMonthGrid');
     renderChat('userChat', appData.chat);
     userApplyFilters();
 }
 
 function userApplyFilters() {
-    var month = document.getElementById('userMonthPicker').value;
-    if (!month) return;
+    var monthStr = getMonthStr(selectedYear, selectedMonth);
     var day = document.getElementById('userDayFilter').value;
     var desc = document.getElementById('userDescFilter').value.trim().toLowerCase();
 
-    var recs = getRecordsForMonth(month);
-    if (currentUser.role === 'worker') {
+    var recs = getRecordsForMonth(selectedYear, selectedMonth);
+    if (currentUser && currentUser.role === 'worker') {
         recs = recs.filter(function(r) { return r.userId === currentUser.id; });
     }
+    var dayFilterActive = false;
+    
     if (day) {
+        dayFilterActive = true;
         recs = recs.filter(function(r) { return r.date === day; });
+        var dayStats = getDayStats(day);
+        document.getElementById('userDayIncome').textContent = formatCurrency(dayStats.income);
+        document.getElementById('userDayExpense').textContent = formatCurrency(dayStats.expense);
+        var profitEl = document.getElementById('userDayProfit');
+        profitEl.textContent = formatCurrency(dayStats.profit);
+        profitEl.style.color = dayStats.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('userDayStats').classList.remove('hidden');
+    } else {
+        document.getElementById('userDayStats').classList.add('hidden');
     }
+
     if (desc) {
         recs = recs.filter(function(r) { return (r.desc || '').toLowerCase().includes(desc); });
     }
 
+    var stats = getMonthStats(selectedYear, selectedMonth);
+    document.getElementById('userMonthIncome').textContent = formatCurrency(stats.income);
+    document.getElementById('userMonthExpense').textContent = formatCurrency(stats.expense);
+    var profitEl2 = document.getElementById('userMonthProfit');
+    profitEl2.textContent = formatCurrency(stats.profit);
+    profitEl2.className = 'value ' + (stats.profit >= 0 ? 'green' : 'red');
+
+    // Render table
     var container = document.getElementById('userRecordList');
     var cardsContainer = document.getElementById('userRecordCards');
     if (recs.length === 0) {
@@ -1625,14 +1587,8 @@ function userShowAddRecord() {
         };
         apiCall('/data/records', 'POST', newRec)
             .then(function() { return loadAllData(); })
-            .then(function() {
-                userApplyFilters();
-                userLoadMonth();
-                showAlert('Yozuv qo‘shildi! Tasdiqlanishi kutilmoqda.', 'success');
-            })
-            .catch(function() {
-                showAlert('Xatolik yuz berdi!', 'error');
-            });
+            .then(function() { userApplyFilters(); showAlert('Yozuv qo‘shildi! Tasdiqlanishi kutilmoqda.', 'success'); })
+            .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
     });
 }
 
@@ -1651,9 +1607,7 @@ function changeUserCreds() {
             currentUser = appData.users.find(function(u) { return u.id === currentUser.id; });
             showAlert('Maʼlumotlar yangilandi!', 'success');
         })
-        .catch(function() {
-            showAlert('Xatolik yuz berdi!', 'error');
-        });
+        .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
 }
 
 function userSendChat() {
@@ -1661,40 +1615,41 @@ function userSendChat() {
     var text = input.value.trim();
     if (!text) return;
     apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() })
-        .then(function() {
-            input.value = '';
-            return loadAllData();
-        })
-        .then(function() {
-            renderChat('adminChat', appData.chat);
-            renderChat('userChat', appData.chat);
-        })
-        .catch(function() {
-            showAlert('Xatolik yuz berdi!', 'error');
-        });
+        .then(function() { input.value = ''; return loadAllData(); })
+        .then(function() { renderChat('adminChat', appData.chat); renderChat('userChat', appData.chat); })
+        .catch(function() { showAlert('Xatolik yuz berdi!', 'error'); });
 }
 
 // ============================================================
-//  EXPORT EXCEL
+//  EXPORT EXCEL (with logo and formatting)
 // ============================================================
 function exportMonthExcel() {
-    var month = document.getElementById('adminMonthPicker').value || document.getElementById('userMonthPicker').value;
-    if (!month) {
-        showAlert('Avval oyni tanlang!', 'warning');
-        return;
+    var monthStr = getMonthStr(selectedYear, selectedMonth);
+    var recs = getRecordsForMonth(selectedYear, selectedMonth);
+    if (currentUser && currentUser.role === 'worker') {
+        recs = recs.filter(function(r) { return r.userId === currentUser.id; });
     }
-    var recs = getRecordsForMonth(month);
     if (recs.length === 0) {
         showAlert('Bu oy uchun yozuv yo‘q!', 'warning');
         return;
     }
 
-    // Excel format
+    var stats = getMonthStats(selectedYear, selectedMonth);
+    var monthName = getMonthName(selectedMonth);
     var header = 'ZT Bizz Up - Hisobot\n';
-    header += 'Oy: ' + month + '\n';
-    header += 'Sana: ' + getToday() + '\n\n';
+    header += '=================================\n';
+    header += 'Oy: ' + monthName + ' ' + selectedYear + '\n';
+    header += 'Sana: ' + getToday() + '\n';
+    header += '=================================\n\n';
+    header += '📊 STATISTIKA\n';
+    header += '---------------------------------\n';
+    header += 'Kirim: ' + stats.income + ' so\'m\n';
+    header += 'Chiqim: ' + stats.expense + ' so\'m\n';
+    header += 'Sof foyda: ' + stats.profit + ' so\'m\n';
+    header += '=================================\n\n';
     header += '№\tSana\tTur\tSumma\tIzoh\tHolat\n';
-    
+    header += '---------------------------------\n';
+
     var rows = '';
     recs.forEach(function(r, idx) {
         var typeText = r.type === 'income' ? 'Kirim' : 'Chiqim';
@@ -1702,17 +1657,13 @@ function exportMonthExcel() {
         rows += (idx + 1) + '\t' + r.date + '\t' + typeText + '\t' + r.amount + '\t' + (r.desc || '-') + '\t' + statusText + '\n';
     });
 
-    // Stats
-    var stats = getMonthStats(month);
-    rows += '\n\nJami kirim: ' + stats.income + '\n';
-    rows += 'Jami chiqim: ' + stats.expense + '\n';
-    rows += 'Sof foyda: ' + stats.profit + '\n';
+    var content = header + rows + '\n' + '=================================\n';
+    content += 'ZT Bizz Up © 2026\n';
 
-    var content = header + rows;
-    var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    var blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
     var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'hisobot_' + month + '.csv';
+    link.download = 'ZT_Bizz_Up_' + monthStr + '.csv';
     link.click();
     URL.revokeObjectURL(link);
     showAlert('Hisobot yuklab olindi!', 'success');
@@ -1724,33 +1675,27 @@ function exportMonthExcel() {
 function init() {
     loadTheme();
     checkConnection();
+    setInterval(checkConnection, 30000);
+
     loadAllData().then(function() {
-        // Add export buttons
-        var adminHeader = document.querySelector('#adminPanel .card-header .flex');
-        if (adminHeader) {
-            var btn = document.createElement('button');
-            btn.className = 'btn btn-warning';
-            btn.innerHTML = '📊 Excel';
-            btn.onclick = exportMonthExcel;
-            adminHeader.appendChild(btn);
+        // Add export button to admin and user panels
+        var adminActions = document.querySelector('#adminPanel .card-header .flex');
+        if (adminActions) {
+            var exportBtn = document.createElement('button');
+            exportBtn.className = 'btn btn-primary';
+            exportBtn.innerHTML = '📊 Excel';
+            exportBtn.onclick = exportMonthExcel;
+            adminActions.appendChild(exportBtn);
         }
-        
-        var userHeader = document.querySelector('#userPanel .card-header .flex');
-        if (userHeader) {
-            var btn = document.createElement('button');
-            btn.className = 'btn btn-warning';
-            btn.innerHTML = '📊 Excel';
-            btn.onclick = exportMonthExcel;
-            userHeader.appendChild(btn);
+        var userActions = document.querySelector('#userPanel .card-header .flex');
+        if (userActions) {
+            var exportBtn2 = document.createElement('button');
+            exportBtn2.className = 'btn btn-primary';
+            exportBtn2.innerHTML = '📊 Excel';
+            exportBtn2.onclick = exportMonthExcel;
+            userActions.appendChild(exportBtn2);
         }
-        
-        // Set default month
-        var d = new Date();
-        var month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        document.getElementById('adminMonthPicker').value = month;
-        document.getElementById('userMonthPicker').value = month;
-        
-        // Auto login if token exists
+
         if (authToken) {
             var user = appData.users.find(function(u) { return u.id === 'admin'; });
             if (user) {
@@ -1759,11 +1704,14 @@ function init() {
                 if (user.role === 'admin') {
                     document.getElementById('adminPanel').classList.add('active');
                     adminLoadDashboard();
+                } else {
+                    document.getElementById('userPanel').classList.add('active');
+                    userLoadDashboard();
                 }
             }
         }
     });
-    
+
     console.log('🚀 ZT Bizz Up tizimi yuklandi!');
     console.log('👤 Admin: admin/123');
     console.log('👔 Boshliq: boss/123');
