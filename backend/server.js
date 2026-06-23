@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 
 dotenv.config();
 
-const { connectDB } = require('./src/config/database');
+const connectDB = require('./src/config/database');
 
 // Подключаемся к БД
 connectDB();
