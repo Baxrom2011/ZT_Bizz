@@ -707,9 +707,9 @@
 // ============================================================
 //  CONFIG
 // ============================================================
-var API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : window.location.origin + '/api';
+// Render.com da frontend va backend bir xil domenda
+// Shuning uchun nisbiy yo'l ishlatamiz
+var API_URL = '/api';
 
 var authToken = localStorage.getItem('authToken') || '';
 var currentUser = null;
@@ -717,7 +717,6 @@ var appData = { users: [], records: [], chat: [] };
 var modalCallback = null;
 var selectedYear = new Date().getFullYear();
 var selectedMonth = new Date().getMonth() + 1;
-
 // ============================================================
 //  THEME
 // ============================================================
