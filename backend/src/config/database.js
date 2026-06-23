@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 
 const connectDB = async () => {
     try {
@@ -69,3 +70,6 @@ const initDatabase = async () => {
         console.log('⚠️ Database init error:', error.message);
     }
 };
+
+// To'g'ri eksport qilish
+module.exports = connectDB;

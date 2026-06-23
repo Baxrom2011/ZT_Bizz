@@ -5,10 +5,12 @@ const compression = require('compression');
 const dotenv = require('dotenv');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
-const connectDB = require('./src/config/database');
 
 // Load env vars
 dotenv.config();
+
+// Import database connection
+const connectDB = require('./src/config/database');
 
 // Connect to database
 connectDB();
