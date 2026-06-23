@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
+const User = require('../models/User');
 
 const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
-            // useNewUrlParser va useUnifiedTopology olib tashlandi (v4.0.0 dan boshlab kerak emas)
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             maxPoolSize: 10,
@@ -11,8 +11,8 @@ const connectDB = async () => {
         });
         console.log(`✅ MongoDB connected: ${conn.connection.host}`);
         
-        // Create indexes
-        await createIndexes();
+        // Create indexes and init users
+        await initDatabase();
         
         return conn;
     } catch (error) {
@@ -23,20 +23,18 @@ const connectDB = async () => {
     }
 };
 
-const createIndexes = async () => {
+const initDatabase = async () => {
     try {
-        // Check if collections exist before creating indexes
+        // Create indexes
         const collections = await mongoose.connection.db.listCollections().toArray();
         const collectionNames = collections.map(c => c.name);
         
-        // Users collection indexes
         if (collectionNames.includes('users')) {
             await mongoose.connection.collection('users').createIndex({ login: 1 }, { unique: true });
             await mongoose.connection.collection('users').createIndex({ id: 1 }, { unique: true });
             console.log('✅ Users indexes created');
         }
         
-        // Records collection indexes
         if (collectionNames.includes('records')) {
             await mongoose.connection.collection('records').createIndex({ id: 1 }, { unique: true });
             await mongoose.connection.collection('records').createIndex({ date: 1 });
@@ -44,14 +42,30 @@ const createIndexes = async () => {
             console.log('✅ Records indexes created');
         }
         
-        // Chat collection indexes
         if (collectionNames.includes('chats')) {
             await mongoose.connection.collection('chats').createIndex({ time: 1 });
             console.log('✅ Chat indexes created');
         }
+        
+        // Create default users if not exists
+        const defaultUsers = [
+            { id: 'admin', name: 'Admin', role: 'admin', login: 'admin', pass: '123' },
+            { id: 'boss1', name: 'Boshliq Alisher', role: 'boss', login: 'boss', pass: '123' },
+            { id: 'worker1', name: 'Ishchi Vali', role: 'worker', login: 'worker', pass: '123' }
+        ];
+        
+        for (const userData of defaultUsers) {
+            const existing = await User.findOne({ login: userData.login });
+            if (!existing) {
+                const user = new User(userData);
+                await user.save();
+                console.log(`✅ Default user created: ${userData.login}`);
+            } else {
+                console.log(`✅ User already exists: ${userData.login}`);
+            }
+        }
+        
     } catch (error) {
-        console.log('⚠️ Indexes creation skipped:', error.message);
+        console.log('⚠️ Database init error:', error.message);
     }
 };
-
-module.exports = connectDB;

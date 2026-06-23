@@ -15,13 +15,15 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['admin', 'boss', 'worker'],
-        required: true
+        required: true,
+        default: 'worker'
     },
     login: {
         type: String,
         required: true,
         unique: true,
-        trim: true
+        trim: true,
+        lowercase: true
     },
     pass: {
         type: String,
@@ -38,14 +40,28 @@ const userSchema = new mongoose.Schema({
 // Hash password before saving
 userSchema.pre('save', async function(next) {
     if (!this.isModified('pass')) return next();
-    const salt = await bcrypt.genSalt(10);
-    this.pass = await bcrypt.hash(this.pass, salt);
-    next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.pass = await bcrypt.hash(this.pass, salt);
+        console.log('✅ Password hashed for user:', this.login);
+        next();
+    } catch (error) {
+        console.error('❌ Error hashing password:', error);
+        next(error);
+    }
 });
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.pass);
+    try {
+        console.log('🔑 Comparing password for:', this.login);
+        const isMatch = await bcrypt.compare(candidatePassword, this.pass);
+        console.log('✅ Password match:', isMatch);
+        return isMatch;
+    } catch (error) {
+        console.error('❌ Error comparing password:', error);
+        return false;
+    }
 };
 
 // Remove password from response
