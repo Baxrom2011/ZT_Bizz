@@ -36,17 +36,17 @@ exports.login = async (req, res) => {
             { expiresIn: '7d' }
         );
 
-        // Remove password from response
-        const userObj = user.toObject();
-        delete userObj.pass;
-
         res.json({
             success: true,
             token,
-            user: userObj
+            user: user.toJSON()
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Login error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -55,7 +55,10 @@ exports.register = async (req, res) => {
         const { id, name, role, login, pass } = req.body;
         
         // Check if user exists
-        const existingUser = await User.findOne({ $or: [{ login }, { id }] });
+        const existingUser = await User.findOne({ 
+            $or: [{ login }, { id }] 
+        });
+        
         if (existingUser) {
             return res.status(400).json({ 
                 success: false, 
@@ -66,29 +69,32 @@ exports.register = async (req, res) => {
         const user = new User({ id, name, role, login, pass });
         await user.save();
 
-        const userObj = user.toObject();
-        delete userObj.pass;
-
         res.json({
             success: true,
-            user: userObj
+            user: user.toJSON()
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Register error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find({});
-        const usersWithoutPass = users.map(user => {
-            const obj = user.toObject();
-            delete obj.pass;
-            return obj;
+        res.json({ 
+            success: true, 
+            users: users.map(u => u.toJSON()) 
         });
-        res.json({ success: true, users: usersWithoutPass });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Get users error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -109,14 +115,56 @@ exports.updateUser = async (req, res) => {
         );
 
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User not found' 
+            });
         }
 
-        const userObj = user.toObject();
-        delete userObj.pass;
-
-        res.json({ success: true, user: userObj });
+        res.json({ 
+            success: true, 
+            user: user.toJSON() 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Update user error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// deleteUser funksiyasi qo'shildi
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Adminni o'chirib bo'lmaydi
+        if (id === 'admin') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Adminni o\'chirib bo\'lmaydi!' 
+            });
+        }
+        
+        const user = await User.findOneAndDelete({ id });
+        
+        if (!user) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User not found' 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'User deleted successfully' 
+        });
+    } catch (error) {
+        console.error('Delete user error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };

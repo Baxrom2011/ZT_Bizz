@@ -31,6 +31,8 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    timestamps: true
 });
 
 // Hash password before saving
@@ -44,6 +46,14 @@ userSchema.pre('save', async function(next) {
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.pass);
+};
+
+// Remove password from response
+userSchema.methods.toJSON = function() {
+    const obj = this.toObject();
+    delete obj.pass;
+    delete obj.__v;
+    return obj;
 };
 
 module.exports = mongoose.model('User', userSchema);

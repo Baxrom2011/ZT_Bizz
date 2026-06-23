@@ -17,4 +17,11 @@ const chatSchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Remove __v from response
+chatSchema.methods.toJSON = function() {
+    const obj = this.toObject();
+    delete obj.__v;
+    return obj;
+};
+
 module.exports = mongoose.model('Chat', chatSchema);
