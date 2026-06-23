@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biznes Boshqaruvi Tizimi</title>
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+            --accent: #6c5ce7;
+            --accent-hover: #5a4bd1;
+            --success: #00b894;
+            --danger: #e17055;
+            --warning: #fdcb6e;
+            --info: #74b9ff;
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f0e17;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-input: #1a1a2e;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --text-muted: #718096;
+            --border-color: #2d3748;
+            --shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            transition: var(--transition);
+            position: relative;
+            min-height: 90vh;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-input);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out;
+        }
+        .animate-slide {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 20px 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        #connectionStatus {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+        .btn-success:hover {
+            background: #00a381;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+        }
+        .btn-danger:hover {
+            background: #d63031;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #2d3436;
+            border: none;
+        }
+        .btn-warning:hover {
+            background: #fdcb6e;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-color);
+        }
+        .btn-ghost:hover {
+            background: var(--bg-input);
+        }
+
+        /* ===== THEME TOGGLE ===== */
+        .theme-toggle {
+            position: relative;
+            width: 56px;
+            height: 30px;
+            background: var(--border-color);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            padding: 0;
+        }
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .theme-toggle.active {
+            background: var(--accent);
+        }
+        .theme-toggle.active::after {
+            left: 29px;
+        }
+        .theme-toggle .icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .theme-toggle .icon-sun {
+            left: 6px;
+            color: #fdcb6e;
+        }
+        .theme-toggle .icon-moon {
+            right: 6px;
+            color: #74b9ff;
+        }
+
+        /* ===== LOGIN ===== */
+        .login-box {
+            max-width: 420px;
+            margin: 60px auto;
+            padding: 40px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hover);
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+        .login-box .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: var(--transition);
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+        }
+
+        /* ===== PANELS ===== */
+        .panel {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .panel.active {
+            display: block;
+        }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-card .icon-bg {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 72px;
+            opacity: 0.08;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ===== TABLE ===== */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: left;
+            padding: 12px 12px;
+            background: var(--bg-input);
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        tr:hover td {
+            background: var(--bg-input);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-approved { background: #d4edda; color: #155724; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-rejected { background: #f8d7da; color: #721c24; }
+
+        [data-theme="dark"] .badge-approved { background: #1a3a2a; color: #81c784; }
+        [data-theme="dark"] .badge-pending { background: #3a3a1a; color: #ffd54f; }
+        [data-theme="dark"] .badge-rejected { background: #3a1a1a; color: #ef9a9a; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 32px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: var(--shadow-hover);
+            animation: fadeIn 0.3s ease-out;
+            border: 1px solid var(--border-color);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+        .modal-content .modal-desc {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        /* ===== CHAT ===== */
+        .chat-box {
+            height: 200px;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+        .chat-message {
+            padding: 8px 16px;
+            margin-bottom: 6px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            display: inline-block;
+            max-width: 80%;
+            border: 1px solid var(--border-color);
+        }
+        .chat-message .sender {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .chat-message .time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-input-group input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        .chat-input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* ===== DATE PICKER ===== */
+        input[type="date"] {
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        input[type="date"]:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .modal-content { padding: 24px; margin: 16px; }
+            .header { flex-direction: column; align-items: stretch; }
+            .header-controls { justify-content: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .login-box { padding: 24px; margin: 20px auto; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        .flex {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .flex-1 { flex: 1; }
+        .gap-8 { gap: 8px; }
+        .text-center { text-align: center; }
+        .text-muted { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+            </svg>
+            <span>Biznes Boshqaruvi</span>
+        </div>
+        <div class="header-controls">
+            <span id="connectionStatus">🔴 Server ulanmagan</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="icon icon-sun">☀️</span>
+                <span class="icon icon-moon">🌙</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginSection">
+        <div class="login-box">
+            <h2>🔐 Tizimga Kirish</h2>
+            <p class="subtitle">Xodimlar boshqaruvi tizimi</p>
+            <div class="form-group">
+                <label>👤 Login</label>
+                <input type="text" id="loginUsername" placeholder="Loginni kiriting" value="admin">
+            </div>
+            <div class="form-group">
+                <label>🔑 Parol</label>
+                <input type="password" id="loginPassword" placeholder="Parolni kiriting" value="123">
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Kirish</button>
+            <p style="margin-top:16px; font-size:13px; color:var(--text-muted); text-align:center;">
+                Demo: admin/123 | boss/123 | worker/123
+            </p>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" class="panel">
+        <div class="stats-grid" id="adminStats">
+            <div class="stat-card">
+                <div class="label">💰 Bu oygi foyda</div>
+                <div class="value" id="adminMonthProfit">0</div>
+                <div class="icon-bg">📈</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📈 Umumiy topilgan</div>
+                <div class="value" id="adminMonthIncome">0</div>
+                <div class="icon-bg">💵</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📉 Umumiy rasxod</div>
+                <div class="value" id="adminMonthExpense">0</div>
+                <div class="icon-bg">💸</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📊 Sof foyda</div>
+                <div class="value" id="adminMonthNet">0</div>
+                <div class="icon-bg">🎯</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📅 Sana bo'yicha yozuvlar</div>
+                <div class="flex gap-8">
+                    <input type="date" id="adminDatePicker" onchange="updateDateColor(this)">
+                    <button class="btn btn-primary" onclick="adminLoadDate()">Ko'rish</button>
+                    <button class="btn btn-success" onclick="adminShowAddRecord()">➕ Yozuv</button>
+                    <button class="btn btn-warning" onclick="adminShowSettings()">⚙️</button>
+                    <button class="btn btn-danger" onclick="logout()">🚪</button>
+                </div>
+            </div>
+            <div id="adminRecordList">
+                <p class="text-muted text-center" style="padding:20px;">Sanani tanlang</p>
+            </div>
+        </div>
+
+        <!-- Admin Settings -->
+        <div id="adminSettings" class="hidden card">
+            <h3 style="margin-bottom:16px;">⚙️ Sozlamalar</h3>
+            <div class="form-group">
+                <label>Yangi Admin Login</label>
+                <input type="text" id="newAdminLogin" placeholder="Yangi login" value="admin">
+            </div>
+            <div class="form-group">
+                <label>Yangi Admin Parol</label>
+                <input type="password" id="newAdminPass" placeholder="Yangi parol" value="123">
+            </div>
+            <button class="btn btn-primary" onclick="changeAdminCreds()">Saqlash</button>
+            <hr style="margin:20px 0; border-color:var(--border-color);">
+            <h4 style="margin-bottom:12px;">➕ Yangi foydalanuvchi qo'shish</h4>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="newUserRole">
+                    <option value="boss">👔 Boshliq</option>
+                    <option value="worker">👷 Ishchi</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ismi</label>
+                <input type="text" id="newUserName" placeholder="To'liq ismi">
+            </div>
+            <div class="form-group">
+                <label>Login</label>
+                <input type="text" id="newUserLogin" placeholder="Login">
+            </div>
+            <div class="form-group">
+                <label>Parol</label>
+                <input type="password" id="newUserPass" placeholder="Parol">
+            </div>
+            <button class="btn btn-success" onclick="addUser()">➕ Qo'shish</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('adminSettings').classList.add('hidden')">Yopish</button>
+        </div>
+
+        <!-- Chat -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">💬 Chat</div>
+            </div>
+            <div class="chat-box" id="adminChat"></div>
+            <div class="chat-input-group">
+                <input type="text" id="adminChatInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter') adminSendChat()">
+                <button class="btn btn-primary" onclick="adminSendChat()">Yuborish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER PANEL -->
+    <div id="userPanel" class="panel">
+        <div class="stats-grid" id="userStats">
+            <div class="stat-card">
+                <div class="label">💰 Bu oygi foyda</div>
+                <div class="value" id="userMonthProfit">0</div>
+                <div class="icon-bg">📈</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📈 Umumiy topilgan</div>
+                <div class="value" id="userMonthIncome">0</div>
+                <div class="icon-bg">💵</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">📉 Umumiy rasxod</div>
+                <div class="value" id="userMonthExpense">0</div>
+                <div class="icon-bg">💸</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📅 Sana bo'yicha yozuvlar</div>
+                <div class="flex gap-8">
+                    <input type="date" id="userDatePicker" onchange="updateDateColor(this)">
+                    <button class="btn btn-primary" onclick="userLoadDate()">Ko'rish</button>
+                    <button class="btn btn-success" onclick="userShowAddRecord()">➕ Yozuv</button>
+                    <button class="btn btn-warning" onclick="userShowSettings()">⚙️</button>
+                    <button class="btn btn-danger" onclick="logout()">🚪</button>
+                </div>
+            </div>
+            <div id="userRecordList">
+                <p class="text-muted text-center" style="padding:20px;">Sanani tanlang</p>
+            </div>
+        </div>
+
+        <!-- User Settings -->
+        <div id="userSettings" class="hidden card">
+            <h3 style="margin-bottom:16px;">🔑 Login/Parolni o'zgartirish</h3>
+            <div class="form-group">
+                <label>Yangi Login</label>
+                <input type="text" id="userNewLogin" placeholder="Yangi login">
+            </div>
+            <div class="form-group">
+                <label>Yangi Parol</label>
+                <input type="password" id="userNewPass" placeholder="Yangi parol">
+            </div>
+            <button class="btn btn-primary" onclick="changeUserCreds()">Saqlash</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('userSettings').classList.add('hidden')">Yopish</button>
+        </div>
+
+        <!-- Chat -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">💬 Chat</div>
+            </div>
+            <div class="chat-box" id="userChat"></div>
+            <div class="chat-input-group">
+                <input type="text" id="userChatInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter') userSendChat()">
+                <button class="btn btn-primary" onclick="userSendChat()">Yuborish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <h3 id="modalTitle">Modal</h3>
+        <p class="modal-desc" id="modalDesc">Modal description</p>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal()">Bekor qilish</button>
+            <button class="btn btn-primary" id="modalConfirmBtn" onclick="modalConfirm()">Tasdiqlash</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIGURATION
+// ============================================================
+// Render'da API_URL ni avtomatik aniqlash
+var API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : window.location.origin + '/api';
+
+console.log('API_URL:', API_URL);
+
+var authToken = localStorage.getItem('authToken') || '';
+var currentUser = null;
+var appData = {
+    users: [],
+    records: [],
+    chat: []
+};
+var modalCallback = null;
+// ============================================================
+//  THEME
+// ============================================================
+function toggleTheme() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('themeToggle').classList.toggle('active');
+    localStorage.setItem('theme', next);
+}
+
+function loadTheme() {
+    var saved = localStorage.getItem('theme');
+    if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+        if (saved === 'dark') {
+            document.getElementById('themeToggle').classList.add('active');
+        }
+    }
+}
+
+// ============================================================
+//  MODAL SYSTEM
+// ============================================================
+function showModal(title, desc, bodyHTML, confirmText, callback) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalDesc').textContent = desc || '';
+    document.getElementById('modalBody').innerHTML = bodyHTML || '';
+    document.getElementById('modalConfirmBtn').textContent = confirmText || 'Tasdiqlash';
+    document.getElementById('modalOverlay').classList.add('active');
+    modalCallback = callback || null;
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    modalCallback = null;
+}
+
+function modalConfirm() {
+    if (modalCallback) modalCallback();
+    closeModal();
+}
+
+function showAlert(message, type) {
+    type = type || 'info';
+    var icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
+    showModal(
+        icons[type] + ' ' + type.charAt(0).toUpperCase() + type.slice(1),
+        message,
+        '',
+        'Tushunarli',
+        null
+    );
+}
+
+function showPrompt(title, desc, defaultValue, callback) {
+    var html = '<div class="form-group">' +
+        '<input type="text" id="promptInput" value="' + (defaultValue || '') + '" placeholder="Ma\'lumot kiriting...">' +
+        '</div>';
+    showModal(title, desc, html, 'Saqlash', function() {
+        var val = document.getElementById('promptInput').value;
+        if (callback) callback(val);
+    });
+}
+
+function showConfirm(title, desc, callback) {
+    showModal(title, desc, '', 'Ha, tasdiqlayman', callback);
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function getToday() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function getMonthStart() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01';
+}
+
+function isSameMonth(dateStr) {
+    var d = new Date(dateStr);
+    var now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
+
+function getRecordsForDate(date) {
+    return appData.records.filter(function(r) { return r.date === date; });
+}
+
+function getRecordsForMonth() {
+    return appData.records.filter(function(r) { return isSameMonth(r.date); });
+}
+
+function getMonthStats() {
+    var recs = getRecordsForMonth();
+    var income = 0, expense = 0;
+    recs.forEach(function(r) {
+        if (r.status === 'approved') {
+            if (r.type === 'income') income += r.amount;
+            else expense += r.amount;
+        }
+    });
+    return { income: income, expense: expense, profit: income - expense };
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS' }).format(amount);
+}
+
+function updateDateColor(input) {
+    var date = input.value;
+    if (!date) return;
+    var recs = getRecordsForDate(date);
+    if (recs.length > 0) {
+        input.style.background = '#d4edda';
+        input.style.borderColor = '#28a745';
+    } else {
+        input.style.background = '#fff3cd';
+        input.style.borderColor = '#ffc107';
+    }
+    if (document.documentElement.getAttribute('data-theme') === 'dark') {
+        input.style.background = recs.length > 0 ? '#1a3a2a' : '#3a3a1a';
+    }
+}
+
+// ============================================================
+//  API CALLS
+// ============================================================
+function apiCall(endpoint, method, body) {
+    method = method || 'GET';
+    var headers = {
+        'Content-Type': 'application/json'
+    };
+    if (authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    var options = {
+        method: method,
+        headers: headers
+    };
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+    
+    return fetch(API_URL + endpoint, options)
+        .then(function(response) { return response.json(); })
+        .catch(function(error) {
+            console.error('API Error:', error);
+            throw error;
+        });
+}
+
+function checkConnection() {
+    return fetch(API_URL + '/ping')
+        .then(function(response) {
+            if (response.ok) {
+                document.getElementById('connectionStatus').textContent = '🟢 Server ulangan';
+                document.getElementById('connectionStatus').style.color = '#00b894';
+                return true;
+            }
+        })
+        .catch(function() {
+            document.getElementById('connectionStatus').textContent = '🔴 Server ulanmagan';
+            document.getElementById('connectionStatus').style.color = '#e17055';
+            return false;
+        });
+}
+
+// ============================================================
+//  RENDER CHAT
+// ============================================================
+function renderChat(containerId, messages) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    var html = '';
+    messages.forEach(function(m) {
+        html += '<div class="chat-message">' +
+            '<span class="sender">' + m.sender + '</span>' +
+            '<span class="time">' + new Date(m.time || Date.now()).toLocaleTimeString() + '</span>' +
+            '<br>' + m.text +
+            '</div>';
+    });
+    el.innerHTML = html;
+    el.scrollTop = el.scrollHeight;
+}
+
+// ============================================================
+//  LOGIN
+// ============================================================
+function login() {
+    var login = document.getElementById('loginUsername').value.trim();
+    var pass = document.getElementById('loginPassword').value.trim();
+    
+    apiCall('/auth/login', 'POST', { login: login, pass: pass })
+        .then(function(result) {
+            if (!result.success) {
+                showAlert(result.message, 'error');
+                return;
+            }
+            
+            authToken = result.token;
+            localStorage.setItem('authToken', authToken);
+            currentUser = result.user;
+            
+            document.getElementById('loginSection').style.display = 'none';
+            
+            return loadAllData();
+        })
+        .then(function() {
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('userPanel').classList.remove('active');
+                adminLoadDashboard();
+            } else {
+                document.getElementById('userPanel').classList.add('active');
+                document.getElementById('adminPanel').classList.remove('active');
+                userLoadDashboard();
+            }
+            showAlert('Xush kelibsiz, ' + currentUser.name + '!', 'success');
+        })
+        .catch(function(error) {
+            showAlert('Server bilan bog‘lanishda xatolik!', 'error');
+        });
+}
+
+function logout() {
+    currentUser = null;
+    authToken = '';
+    localStorage.removeItem('authToken');
+    document.getElementById('adminPanel').classList.remove('active');
+    document.getElementById('userPanel').classList.remove('active');
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+}
+
+// ============================================================
+//  LOAD DATA
+// ============================================================
+function loadAllData() {
+    return apiCall('/data/all')
+        .then(function(result) {
+            if (result.success) {
+                appData.users = result.users || [];
+                appData.records = result.records || [];
+                appData.chat = result.chat || [];
+                localStorage.setItem('appData', JSON.stringify(appData));
+            }
+        })
+        .catch(function() {
+            var local = localStorage.getItem('appData');
+            if (local) {
+                try {
+                    var parsed = JSON.parse(local);
+                    appData.users = parsed.users || [];
+                    appData.records = parsed.records || [];
+                    appData.chat = parsed.chat || [];
+                } catch(e) {}
+            }
+        });
+}
+
+function saveData() {
+    localStorage.setItem('appData', JSON.stringify(appData));
+    return apiCall('/data/sync', 'POST', appData)
+        .catch(function(error) {
+            console.error('Sync error:', error);
+        });
+}
+
+// ============================================================
+//  ADMIN PANEL
+// ============================================================
+function adminLoadDashboard() {
+    var stats = getMonthStats();
+    document.getElementById('adminMonthProfit').textContent = formatCurrency(stats.profit);
+    document.getElementById('adminMonthIncome').textContent = formatCurrency(stats.income);
+    document.getElementById('adminMonthExpense').textContent = formatCurrency(stats.expense);
+    document.getElementById('adminMonthNet').textContent = formatCurrency(stats.profit);
+    renderChat('adminChat', appData.chat);
+    document.getElementById('adminDatePicker').value = getToday();
+    adminLoadDate();
+}
+
+function adminLoadDate() {
+    var date = document.getElementById('adminDatePicker').value;
+    if (!date) return;
+    
+    apiCall('/data/records?date=' + date)
+        .then(function(result) {
+            var recs = result.success ? result.records : getRecordsForDate(date);
+            var container = document.getElementById('adminRecordList');
+            if (recs.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center" style="padding:20px;">' + date + ' sanada yozuv yo‘q</p>';
+                return;
+            }
+            
+            var html = '<div class="table-wrapper"><table>' +
+                '<tr><th>#</th><th>Tur</th><th>Summa</th><th>Izoh</th><th>Holat</th><th>Amallar</th></tr>';
+            recs.forEach(function(r, idx) {
+                var statusClass = r.status === 'approved' ? 'approved' : r.status === 'rejected' ? 'rejected' : 'pending';
+                var statusText = r.status === 'approved' ? 'Tasdiqlangan' : r.status === 'rejected' ? 'Rad etilgan' : 'Kutilmoqda';
+                var actions = '<div class="flex gap-8" style="flex-wrap:wrap;">';
+                if (r.status === 'pending') {
+                    actions += '<button class="btn btn-success" style="padding:4px 12px;font-size:12px;" onclick="adminApproveRecord(\'' + r.id + '\')">✅</button>';
+                    actions += '<button class="btn btn-danger" style="padding:4px 12px;font-size:12px;" onclick="adminRejectRecord(\'' + r.id + '\')">❌</button>';
+                }
+                actions += '<button class="btn btn-warning" style="padding:4px 12px;font-size:12px;" onclick="adminEditRecord(\'' + r.id + '\')">✏️</button>';
+                actions += '<button class="btn btn-danger" style="padding:4px 12px;font-size:12px;" onclick="adminDeleteRecord(\'' + r.id + '\')">🗑️</button>';
+                actions += '</div>';
+                html += '<tr>' +
+                    '<td>' + (idx + 1) + '</td>' +
+                    '<td>' + (r.type === 'income' ? '📈 Kirim' : '📉 Chiqim') + '</td>' +
+                    '<td>' + formatCurrency(r.amount) + '</td>' +
+                    '<td>' + (r.desc || '-') + '</td>' +
+                    '<td><span class="badge badge-' + statusClass + '">' + statusText + '</span></td>' +
+                    '<td>' + actions + '</td>' +
+                    '</tr>';
+            });
+            html += '</table></div>';
+            container.innerHTML = html;
+        })
+        .catch(function() {
+            showAlert('Ma\'lumotlarni yuklashda xatolik!', 'error');
+        });
+}
+
+function adminApproveRecord(id) {
+    apiCall('/data/records/' + id, 'PUT', { status: 'approved' })
+        .then(function() { return loadAllData(); })
+        .then(function() {
+            adminLoadDate();
+            adminLoadDashboard();
+            showAlert('Yozuv tasdiqlandi!', 'success');
+        })
+        .catch(function() {
+            showAlert('Xatolik yuz berdi!', 'error');
+        });
+}
+
+function adminRejectRecord(id) {
+    apiCall('/data/records/' + id, 'PUT', { status: 'rejected' })
+        .then(function() { return loadAllData(); })
+        .then(function() {
+            adminLoadDate();
+            adminLoadDashboard();
+            showAlert('Yozuv rad etildi!', 'warning');
+        })
+        .catch(function() {
+            showAlert('Xatolik yuz berdi!', 'error');
+        });
+}
+
+function adminDeleteRecord(id) {
+    showConfirm('O‘chirish', 'Bu yozuvni o‘chirmoqchimisiz?', function() {
+        apiCall('/data/records/' + id, 'DELETE')
+            .then(function() { return loadAllData(); })
+            .then(function() {
+                adminLoadDate();
+                adminLoadDashboard();
+                showAlert('Yozuv o‘chirildi!', 'success');
+            })
+            .catch(function() {
+                showAlert('Xatolik yuz berdi!', 'error');
+            });
+    });
+}
+
+function adminEditRecord(id) {
+    var rec = appData.records.find(function(r) { return r.id === id; });
+    if (!rec) return;
+    showPrompt('Yangi summa', 'Summani kiriting:', rec.amount, function(val) {
+        if (val && !isNaN(val)) {
+            apiCall('/data/records/' + id, 'PUT', { amount: parseFloat(val) })
+                .then(function() { return loadAllData(); })
+                .then(function() {
+                    adminLoadDate();
+                    adminLoadDashboard();
+                    showAlert('Yozuv yangilandi!', 'success');
+                })
+                .catch(function() {
+                    showAlert('Xatolik yuz berdi!', 'error');
+                });
+        }
+    });
+}
+
+function adminShowAddRecord() {
+    var date = document.getElementById('adminDatePicker').value;
+    if (!date) { showAlert('Avval sanani tanlang!', 'warning'); return; }
+    var html = '<div class="form-group">' +
+        '<label>Tur</label>' +
+        '<select id="addRecordType">' +
+        '<option value="income">📈 Kirim</option>' +
+        '<option value="expense">📉 Chiqim</option>' +
+        '</select>' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label>Summa</label>' +
+        '<input type="number" id="addRecordAmount" placeholder="Summani kiriting">' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label>Izoh</label>' +
+        '<input type="text" id="addRecordDesc" placeholder="Izoh (ixtiyoriy)">' +
+        '</div>';
+    showModal('Yangi yozuv qo\'shish', date + ' sanaga', html, 'Qo\'shish', function() {
+        var type = document.getElementById('addRecordType').value;
+        var amount = parseFloat(document.getElementById('addRecordAmount').value);
+        var desc = document.getElementById('addRecordDesc').value || '';
+        if (!amount || isNaN(amount)) {
+            showAlert('Summani to‘g‘ri kiriting!', 'error');
+            return;
+        }
+        var newRec = {
+            id: 'rec_' + Date.now(),
+            date: date,
+            type: type,
+            amount: amount,
+            desc: desc,
+            status: 'pending',
+            userId: currentUser.id,
+            time: Date.now()
+        };
+        apiCall('/data/records', 'POST', newRec)
+            .then(function() { return loadAllData(); })
+            .then(function() {
+                adminLoadDate();
+                adminLoadDashboard();
+                showAlert('Yozuv qo‘shildi!', 'success');
+            })
+            .catch(function() {
+                showAlert('Xatolik yuz berdi!', 'error');
+            });
+    });
+}
+
+function adminShowSettings() {
+    document.getElementById('adminSettings').classList.toggle('hidden');
+}
+
+function changeAdminCreds() {
+    var login = document.getElementById('newAdminLogin').value.trim();
+    var pass = document.getElementById('newAdminPass').value.trim();
+    if (!login || !pass) { showAlert('Login va parol to‘ldirilsin!', 'warning'); return; }
+    var admin = appData.users.find(function(u) { return u.id === 'admin'; });
+    if (admin) {
+        apiCall('/auth/users/' + admin.id, 'PUT', { login: login, pass: pass })
+            .then(function() { return loadAllData(); })
+            .then(function() {
+                showAlert('Admin maʼlumotlari yangilandi!', 'success');
+            })
+            .catch(function() {
+                showAlert('Xatolik yuz berdi!', 'error');
+            });
+    }
+}
+
+function addUser() {
+    var role = document.getElementById('newUserRole').value;
+    var name = document.getElementById('newUserName').value.trim();
+    var login = document.getElementById('newUserLogin').value.trim();
+    var pass = document.getElementById('newUserPass').value.trim();
+    if (!name || !login || !pass) {
+        showAlert('Barcha maydonlarni to‘ldiring!', 'warning');
+        return;
+    }
+    if (appData.users.find(function(u) { return u.login === login; })) {
+        showAlert('Bunday login mavjud!', 'error');
+        return;
+    }
+    apiCall('/auth/register', 'POST', {
+        id: 'user_' + Date.now(),
+        name: name,
+        role: role,
+        login: login,
+        pass: pass
+    })
+    .then(function() { return loadAllData(); })
+    .then(function() {
+        showAlert('Foydalanuvchi qo‘shildi!', 'success');
+        document.getElementById('newUserName').value = '';
+        document.getElementById('newUserLogin').value = '';
+        document.getElementById('newUserPass').value = '';
+    })
+    .catch(function() {
+        showAlert('Xatolik yuz berdi!', 'error');
+    });
+}
+
+function adminSendChat() {
+    var input = document.getElementById('adminChatInput');
+    var text = input.value.trim();
+    if (!text) return;
+    apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() })
+        .then(function() {
+            input.value = '';
+            return loadAllData();
+        })
+        .then(function() {
+            renderChat('adminChat', appData.chat);
+            renderChat('userChat', appData.chat);
+        })
+        .catch(function() {
+            showAlert('Xatolik yuz berdi!', 'error');
+        });
+}
+
+// ============================================================
+//  USER PANEL
+// ============================================================
+function userLoadDashboard() {
+    var stats = getMonthStats();
+    document.getElementById('userMonthProfit').textContent = formatCurrency(stats.profit);
+    document.getElementById('userMonthIncome').textContent = formatCurrency(stats.income);
+    document.getElementById('userMonthExpense').textContent = formatCurrency(stats.expense);
+    renderChat('userChat', appData.chat);
+    document.getElementById('userDatePicker').value = getToday();
+    userLoadDate();
+}
+
+function userLoadDate() {
+    var date = document.getElementById('userDatePicker').value;
+    if (!date) return;
+    var recs = getRecordsForDate(date);
+    if (currentUser.role === 'worker') {
+        recs = recs.filter(function(r) { return r.userId === currentUser.id; });
+    }
+    var container = document.getElementById('userRecordList');
+    if (recs.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center" style="padding:20px;">' + date + ' sanada yozuv yo‘q</p>';
+        return;
+    }
+    var html = '<div class="table-wrapper"><table>' +
+        '<tr><th>#</th><th>Tur</th><th>Summa</th><th>Izoh</th><th>Holat</th></tr>';
+    recs.forEach(function(r, idx) {
+        var statusClass = r.status === 'approved' ? 'approved' : r.status === 'rejected' ? 'rejected' : 'pending';
+        var statusText = r.status === 'approved' ? 'Tasdiqlangan' : r.status === 'rejected' ? 'Rad etilgan' : 'Kutilmoqda';
+        html += '<tr>' +
+            '<td>' + (idx + 1) + '</td>' +
+            '<td>' + (r.type === 'income' ? '📈 Kirim' : '📉 Chiqim') + '</td>' +
+            '<td>' + formatCurrency(r.amount) + '</td>' +
+            '<td>' + (r.desc || '-') + '</td>' +
+            '<td><span class="badge badge-' + statusClass + '">' + statusText + '</span></td>' +
+            '</tr>';
+    });
+    html += '</table></div>';
+    container.innerHTML = html;
+}
+
+function userShowAddRecord() {
+    var date = document.getElementById('userDatePicker').value;
+    if (!date) { showAlert('Avval sanani tanlang!', 'warning'); return; }
+    var now = new Date();
+    var today = getToday();
+    if (date === today && now.getHours() === 0 && now.getMinutes() === 0) {
+        showAlert('Kun tugadi, yozuv qo‘shish mumkin emas!', 'warning');
+        return;
+    }
+    var html = '<div class="form-group">' +
+        '<label>Tur</label>' +
+        '<select id="userAddRecordType">' +
+        '<option value="income">📈 Kirim</option>' +
+        '<option value="expense">📉 Chiqim</option>' +
+        '</select>' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label>Summa</label>' +
+        '<input type="number" id="userAddRecordAmount" placeholder="Summani kiriting">' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label>Izoh</label>' +
+        '<input type="text" id="userAddRecordDesc" placeholder="Izoh (ixtiyoriy)">' +
+        '</div>';
+    showModal('Yangi yozuv qo\'shish', date + ' sanaga', html, 'Qo\'shish', function() {
+        var type = document.getElementById('userAddRecordType').value;
+        var amount = parseFloat(document.getElementById('userAddRecordAmount').value);
+        var desc = document.getElementById('userAddRecordDesc').value || '';
+        if (!amount || isNaN(amount)) {
+            showAlert('Summani to‘g‘ri kiriting!', 'error');
+            return;
+        }
+        var newRec = {
+            id: 'rec_' + Date.now(),
+            date: date,
+            type: type,
+            amount: amount,
+            desc: desc,
+            status: 'pending',
+            userId: currentUser.id,
+            time: Date.now()
+        };
+        apiCall('/data/records', 'POST', newRec)
+            .then(function() { return loadAllData(); })
+            .then(function() {
+                userLoadDate();
+                userLoadDashboard();
+                showAlert('Yozuv qo‘shildi! Tasdiqlanishi kutilmoqda.', 'success');
+            })
+            .catch(function() {
+                showAlert('Xatolik yuz berdi!', 'error');
+            });
+    });
+}
+
+function userShowSettings() {
+    document.getElementById('userSettings').classList.toggle('hidden');
+}
+
+function changeUserCreds() {
+    var login = document.getElementById('userNewLogin').value.trim();
+    var pass = document.getElementById('userNewPass').value.trim();
+    if (!login || !pass) { showAlert('Login va parol to‘ldirilsin!', 'warning'); return; }
+    apiCall('/auth/users/' + currentUser.id, 'PUT', { login: login, pass: pass })
+        .then(function() { return loadAllData(); })
+        .then(function() {
+            currentUser = appData.users.find(function(u) { return u.id === currentUser.id; });
+            showAlert('Maʼlumotlar yangilandi!', 'success');
+        })
+        .catch(function() {
+            showAlert('Xatolik yuz berdi!', 'error');
+        });
+}
+
+function userSendChat() {
+    var input = document.getElementById('userChatInput');
+    var text = input.value.trim();
+    if (!text) return;
+    apiCall('/chat', 'POST', { sender: currentUser.name, text: text, time: Date.now() })
+        .then(function() {
+            input.value = '';
+            return loadAllData();
+        })
+        .then(function() {
+            renderChat('adminChat', appData.chat);
+            renderChat('userChat', appData.chat);
+        })
+        .catch(function() {
+            showAlert('Xatolik yuz berdi!', 'error');
+        });
+}
+
+// ============================================================
+//  EXPORT EXCEL (CSV)
+// ============================================================
+function exportMonthExcel() {
+    var recs = getRecordsForMonth();
+    if (recs.length === 0) {
+        showAlert('Bu oy uchun yozuv yo‘q!', 'warning');
+        return;
+    }
+    var csv = "Sana,Tur,Summa,Izoh,Holat\n";
+    recs.forEach(function(r) {
+        csv += r.date + ',' + (r.type === 'income' ? 'Kirim' : 'Chiqim') + ',' + r.amount + ',' + (r.desc || '') + ',' + r.status + '\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'oylik_' + getMonthStart() + '.csv';
+    link.click();
+    URL.revokeObjectURL(link);
+    showAlert('Excel fayl yuklab olindi!', 'success');
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+    loadTheme();
+    checkConnection();
+    loadAllData().then(function() {
+        // Add export buttons
+        var adminHeader = document.querySelector('#adminPanel .card-header .flex');
+        if (adminHeader) {
+            var btn = document.createElement('button');
+            btn.className = 'btn btn-warning';
+            btn.innerHTML = '📊 Excel';
+            btn.onclick = exportMonthExcel;
+            adminHeader.appendChild(btn);
+        }
+        
+        var userHeader = document.querySelector('#userPanel .card-header .flex');
+        if (userHeader) {
+            var btn = document.createElement('button');
+            btn.className = 'btn btn-warning';
+            btn.innerHTML = '📊 Excel';
+            btn.onclick = exportMonthExcel;
+            userHeader.appendChild(btn);
+        }
+        
+        // Auto login if token exists
+        if (authToken) {
+            var user = appData.users.find(function(u) { return u.id === 'admin'; });
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginSection').style.display = 'none';
+                if (user.role === 'admin') {
+                    document.getElementById('adminPanel').classList.add('active');
+                    adminLoadDashboard();
+                }
+            }
+        }
+    });
+    
+    console.log('🚀 Tizim yuklandi!');
+    console.log('👤 Admin: admin/123');
+    console.log('👔 Boshliq: boss/123');
+    console.log('👷 Ishchi: worker/123');
+}
+
+// Start the app
+init();
+</script>
+</body>
+</html>

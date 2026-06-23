@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: business-management-system
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://business-management-system.onrender.com
+    plan: free
+    region: oregon
+    buildFilter:
+      paths:
+        - backend/**/*.js
+        - backend/package.json
