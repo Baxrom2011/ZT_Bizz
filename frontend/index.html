@@ -707,16 +707,16 @@
 // ============================================================
 //  CONFIG
 // ============================================================
-// API_URL ni dinamik qilamiz - qaysi qurilmada bo'lishidan qat'iy nazar ishlaydi
-var API_URL = window.location.origin + '/api';
+var API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : window.location.origin + '/api';
 
-// Agar localhost da ishlayotgan bo'lsa
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    API_URL = 'http://localhost:5000/api';
-}
-
-console.log('📍 API_URL:', API_URL);
-console.log('📍 Hostname:', window.location.hostname);
+var authToken = localStorage.getItem('authToken') || '';
+var currentUser = null;
+var appData = { users: [], records: [], chat: [] };
+var modalCallback = null;
+var selectedYear = new Date().getFullYear();
+var selectedMonth = new Date().getMonth() + 1;
 
 // ============================================================
 //  THEME
@@ -765,6 +765,7 @@ function showToast(message, type) {
         setTimeout(function() { toast.remove(); }, 300);
     }, 3000);
 }
+function showAlert(msg, type) { showToast(msg, type); }
 
 // ============================================================
 //  MODAL
@@ -830,50 +831,24 @@ function formatCurrency(amount) {
 // ============================================================
 function apiCall(endpoint, method, body) {
     method = method || 'GET';
-    var headers = { 
-        'Content-Type': 'application/json' 
-    };
-    if (authToken) {
-        headers['Authorization'] = 'Bearer ' + authToken;
-    }
-    var opts = { 
-        method: method, 
-        headers: headers 
-    };
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var opts = { method: method, headers: headers };
     if (body) opts.body = JSON.stringify(body);
-    
-    console.log('📤 API Request:', {
-        url: API_URL + endpoint,
-        method: method,
-        headers: headers,
-        body: body
+    return fetch(API_URL + endpoint, opts).then(function(r) { return r.json(); }).catch(function(e) { console.error(e); throw e; });
+}
+function checkConnection() {
+    fetch(API_URL + '/ping').then(function(r) {
+        if (r.ok) { document.getElementById('connDot').className = 'conn-dot online'; document.getElementById('connLabel').textContent = 'Ulangan'; }
+        else throw new Error();
+    }).catch(function() {
+        document.getElementById('connDot').className = 'conn-dot offline';
+        document.getElementById('connLabel').textContent = 'Ulanmagan';
     });
-    
-    return fetch(API_URL + endpoint, opts)
-        .then(function(r) { 
-            console.log('📥 API Response Status:', r.status);
-            if (!r.ok) {
-                return r.text().then(function(text) {
-                    console.error('❌ API Error Response:', text);
-                    try {
-                        var data = JSON.parse(text);
-                        throw new Error(data.message || 'Request failed');
-                    } catch(e) {
-                        throw new Error('Server error: ' + r.status);
-                    }
-                });
-            }
-            return r.json(); 
-        })
-        .catch(function(e) { 
-            console.error('❌ API Error:', e); 
-            showToast('❌ Server bilan ulanishda xatolik: ' + e.message, 'error');
-            throw e; 
-        });
 }
 
 // ============================================================
-//  LOAD DATA
+//  LOAD DATA - FIXED
 // ============================================================
 function loadAllData() {
     return apiCall('/data/all')
@@ -903,7 +878,7 @@ function loadAllData() {
 }
 
 // ============================================================
-//  CHAT
+//  CHAT - FIXED
 // ============================================================
 function renderChat(containerId, messages) {
     var el = document.getElementById(containerId);
@@ -933,68 +908,20 @@ function renderChat(containerId, messages) {
 function login() {
     var loginVal = document.getElementById('loginUsername').value.trim();
     var passVal = document.getElementById('loginPassword').value.trim();
-    
-    if (!loginVal || !passVal) {
-        showToast('Login va parolni kiriting!', 'warning');
-        return;
-    }
-    
-    console.log('🔑 Login attempt:', { login: loginVal });
-    showToast('⏳ Kuting, tizimga kirilmoqda...', 'info');
-    
     apiCall('/auth/login', 'POST', { login: loginVal, pass: passVal })
         .then(function(result) {
-            console.log('📥 Login response:', result);
-            if (!result.success) { 
-                showToast(result.message || 'Xatolik', 'error'); 
-                return; 
-            }
-            
-            authToken = result.token;
-            localStorage.setItem('authToken', authToken);
-            
-            // Backend dan kelgan user ma'lumotlarini ishlatamiz
+            if (!result.success) { showToast(result.message || 'Xatolik', 'error'); return; }
+            authToken = result.token; localStorage.setItem('authToken', authToken);
             currentUser = result.user;
-            
-            // Token dan qo'shimcha ma'lumot olish
-            try {
-                const tokenParts = authToken.split('.');
-                if (tokenParts.length === 3) {
-                    const payload = JSON.parse(atob(tokenParts[1]));
-                    console.log('🔍 Token payload:', payload);
-                    
-                    // Agar result.user da id bo'lmasa, tokendan olamiz
-                    if (!currentUser.id && payload.id) {
-                        currentUser.id = payload.id;
-                    }
-                    if (!currentUser.name && payload.name) {
-                        currentUser.name = payload.name;
-                    }
-                    if (!currentUser.role && payload.role) {
-                        currentUser.role = payload.role;
-                    }
-                }
-            } catch (error) {
-                console.warn('⚠️ Token parse warning:', error);
-            }
-            
-            console.log('✅ Logged in as:', currentUser.name);
-            console.log('👤 User ID:', currentUser.id);
-            console.log('👔 Role:', currentUser.role);
-            
             return loadAllData();
         })
         .then(function() {
             if (!currentUser) return;
-            
-            // UI ni yangilash
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userBadge').classList.remove('hidden');
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('userNameLabel').textContent = currentUser.name;
             document.getElementById('userAvatarText').textContent = currentUser.name.charAt(0).toUpperCase();
-            
-            // Rol bo'yicha panelni ko'rsatish
             if (currentUser.role === 'admin') {
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('userPanel').classList.remove('active');
@@ -1004,45 +931,22 @@ function login() {
                 document.getElementById('adminPanel').classList.remove('active');
                 userLoadDashboard();
             }
-            
             showToast('Xush kelibsiz, ' + currentUser.name + '!', 'success');
         })
-        .catch(function(error) {
-            console.error('❌ Login error:', error);
-            if (error.message && error.message.includes('buffering timed out')) {
-                showToast('❌ MongoDB ga ulanish vaqti tugadi! Iltimos, 1 daqiqadan keyin qayta urinib ko\'ring.', 'error');
-            } else if (error.message && error.message.includes('ECONNREFUSED')) {
-                showToast('❌ Server ishlamayapti! Iltimos, keyinroq qayta urinib ko\'ring.', 'error');
-            } else {
-                showToast('❌ Server bilan ulanishda xatolik: ' + error.message, 'error');
-            }
-        });
+        .catch(function() { showToast('Server bilan ulanishda xatolik', 'error'); });
 }
-
 function logout() {
-    currentUser = null;
-    authToken = '';
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('appData');
-    
-    // Panellarni yopish
+    currentUser = null; authToken = ''; localStorage.removeItem('authToken');
     document.getElementById('adminPanel').classList.remove('active');
     document.getElementById('userPanel').classList.remove('active');
-    
-    // Login sahifasini ko'rsatish
     document.getElementById('loginSection').style.display = 'flex';
     document.getElementById('userBadge').classList.add('hidden');
     document.getElementById('logoutBtn').classList.add('hidden');
-    
-    // Inputlarni tozalash
     document.getElementById('loginPassword').value = '';
-    document.getElementById('loginUsername').value = 'admin';
-    
-    console.log('👋 Logged out successfully');
-    showToast('Tizimdan chiqildi!', 'info');
 }
+
 // ============================================================
-//  YEAR / MONTH SELECTOR
+//  YEAR / MONTH SELECTOR - FIXED
 // ============================================================
 function renderYearSelector(containerId) {
     var container = document.getElementById(containerId);
@@ -1250,7 +1154,7 @@ function addUser() {
 }
 
 // ============================================================
-//  CHAT FUNCTIONS
+//  CHAT FUNCTIONS - FIXED
 // ============================================================
 function adminSendChat() {
     var input = document.getElementById('adminChatInput');
@@ -1381,7 +1285,7 @@ function changeUserCreds() {
 }
 
 // ============================================================
-//  USER CHAT
+//  USER CHAT - FIXED
 // ============================================================
 function userSendChat() {
     var input = document.getElementById('userChatInput');
@@ -1401,7 +1305,7 @@ function userSendChat() {
 }
 
 // ============================================================
-//  PDF EXPORT
+//  PDF EXPORT - FIXED
 // ============================================================
 function exportMonthPDF(panelType) {
     var recs = getRecordsForMonth(selectedYear, selectedMonth);
@@ -1547,83 +1451,36 @@ function generatePDF(logoDataUrl, recs, stats, monthName, dateStr) {
 //  INIT
 // ============================================================
 function init() {
-    console.log('🚀 Initializing app...');
-    console.log('📍 Origin:', window.location.origin);
-    console.log('📍 API_URL:', API_URL);
-    console.log('📍 Hostname:', window.location.hostname);
-    console.log('📍 User Agent:', navigator.userAgent);
-    
     loadTheme();
     checkConnection();
     setInterval(checkConnection, 30000);
 
     loadAllData().then(function() {
-        console.log('📦 AppData loaded:', {
-            users: appData.users.length,
-            records: appData.records.length,
-            chat: appData.chat.length
-        });
-        
         if (authToken) {
-            console.log('🔑 Auth token found');
-            try {
-                const tokenParts = authToken.split('.');
-                if (tokenParts.length === 3) {
-                    const payload = JSON.parse(atob(tokenParts[1]));
-                    console.log('🔍 Token payload:', payload);
-                    
-                    const userId = payload.id;
-                    console.log('👤 User ID from token:', userId);
-                    
-                    var user = appData.users.find(function(u) { 
-                        return u.id === userId; 
-                    });
-                    
-                    if (!user && payload.login) {
-                        user = appData.users.find(function(u) { 
-                            return u.login === payload.login; 
-                        });
-                    }
-                    
-                    if (user) {
-                        currentUser = user;
-                        console.log('✅ User found:', currentUser.name);
-                        
-                        document.getElementById('loginSection').style.display = 'none';
-                        document.getElementById('userBadge').classList.remove('hidden');
-                        document.getElementById('logoutBtn').classList.remove('hidden');
-                        document.getElementById('userNameLabel').textContent = currentUser.name;
-                        document.getElementById('userAvatarText').textContent = currentUser.name.charAt(0).toUpperCase();
-                        
-                        if (currentUser.role === 'admin') {
-                            document.getElementById('adminPanel').classList.add('active');
-                            document.getElementById('userPanel').classList.remove('active');
-                            adminLoadDashboard();
-                        } else {
-                            document.getElementById('userPanel').classList.add('active');
-                            document.getElementById('adminPanel').classList.remove('active');
-                            userLoadDashboard();
-                        }
-                    } else {
-                        console.warn('⚠️ User not found, logging out');
-                        logout();
-                    }
+            var user = appData.users.find(function(u) { return u.id === 'admin'; });
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('userBadge').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('userNameLabel').textContent = user.name;
+                document.getElementById('userAvatarText').textContent = user.name.charAt(0).toUpperCase();
+                if (user.role === 'admin') {
+                    document.getElementById('adminPanel').classList.add('active');
+                    adminLoadDashboard();
                 } else {
-                    console.warn('⚠️ Invalid token format');
-                    logout();
+                    document.getElementById('userPanel').classList.add('active');
+                    userLoadDashboard();
                 }
-            } catch (error) {
-                console.error('❌ Token decode error:', error);
-                logout();
             }
-        } else {
-            console.log('ℹ️ No auth token found');
         }
     });
 
     console.log('✅ ZT Bizz Up tizimi yuklandi');
     console.log('👤 Admin: admin/123 | Boshliq: boss/123 | Ishchi: worker/123');
 }
+
+init();
 </script>
 </body>
 </html>
